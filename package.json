@@ -1,0 +1,54 @@
+{
+  "name": "class-validator-jsonschema",
+  "version": "1.0.0",
+  "description": "Convert class-validator-decorated classes into JSON schema",
+  "keywords": [
+    "class-validator",
+    "jsonschema",
+    "openapi",
+    "swagger"
+  ],
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "repository": "git@github.com:epiphone/class-validator-jsonschema.git",
+  "author": "Aleksi Pekkala <aleksipekkala@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf coverage build",
+    "build": "yarn clean && tsc -p tsconfig.json",
+    "format": "prettier --write {src,test}/**/*.ts",
+    "lint": "tslint --project . --type-check src/**/*.ts",
+    "prepare": "yarn build",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "dependencies": {
+    "class-validator": "^0.7.3",
+    "debug": "^3.1.0",
+    "lodash": "^4.17.4",
+    "openapi3-ts": "^0.6.2",
+    "reflect-metadata": "^0.1.10",
+    "tslib": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/debug": "^0.0.30",
+    "@types/jest": "^21.1.8",
+    "@types/lodash": "^4.14.85",
+    "@types/prettier": "^1.8.0",
+    "@types/reflect-metadata": "^0.0.5",
+    "@types/rimraf": "^2.0.2",
+    "jest": "^21.2.1",
+    "prettier": "^1.8.2",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^21.2.3",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.6.0",
+    "tslint-config-standard": "^7.0.0",
+    "tsutils": "^2.12.2",
+    "typescript": "^2.6.1"
+  }
+}
