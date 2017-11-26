@@ -1,9 +1,9 @@
 module.exports = {
   testEnvironment: 'node',
-  "transform": {
+  transform: {
     "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
   },
-  "testRegex": "(/__tests__/.*|\\.(test))\\.(ts|js)$",
+  testRegex: "(/__tests__/.*|\\.(test))\\.(ts|js)$",
   globals: {
     'ts-jest': {
       skipBabel: true
