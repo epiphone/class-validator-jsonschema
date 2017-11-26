@@ -1,5 +1,5 @@
 // tslint:disable:no-submodule-imports
-import { ValidationTypes } from 'class-validator'
+import { ValidationTypes, ValidatorOptions } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata'
 import * as _ from 'lodash'
 import { SchemaObject } from 'openapi3-ts'
@@ -7,7 +7,7 @@ const debug = require('debug')('routing-controllers-openapi')
 
 import { defaultConverters, ISchemaConverters } from './defaultConverters'
 
-export interface IOptions {
+export interface IOptions extends ValidatorOptions {
   /**
    * A map of additional metadata-to-schema converters that can be used to
    * supplement or override the default ones. The key should correspond to the
@@ -78,8 +78,7 @@ function applySchemaConverters(
 function getRequiredPropNames(metadatas: ValidationMetadata[]) {
   return _(metadatas)
     .groupBy('propertyName')
-    .mapValues(d => _.find(d, { type: ValidationTypes.CONDITIONAL_VALIDATION }))
-    .omitBy(d => d)
+    .omitBy(d => _.find(d, { type: ValidationTypes.CONDITIONAL_VALIDATION }))
     .keys()
     .value()
 }
