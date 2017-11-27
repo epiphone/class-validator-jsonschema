@@ -1,6 +1,7 @@
 # class-validator-jsonschema
 [![Build Status](https://travis-ci.com/epiphone/class-validator-jsonschema.svg?token=LxSHquEwyhSfU8JddMyx&branch=master)](https://travis-ci.com/epiphone/class-validator-jsonschema)
-Convert [class-validator](https://github.com/typestack/class-validator)-decorated classes into JSON schema.
+
+Convert [class-validator](https://github.com/typestack/class-validator)-decorated classes into JSON Schema. The aim is to provide a best-effort conversion: since some of the `class-validator` decorators lack a direct JSON Schema counterpart, the conversion is bound to be somewhat opinionated. To account for this deficit multiple extension points are available.
 
 **Work in progress!**
 
@@ -57,6 +58,13 @@ const schemas = validationMetadatasToSchemas(
 )
 ```
 
+## Limitations
+
+TODO
+
 ## TODO
 
 - [ ] handle `skipMissingProperties`
+- [ ] decorators for overwriting prop schemas
+- [ ] property descriptions (e.g. `A Base64-encoded string`)
+- [ ] split tests by decorator type

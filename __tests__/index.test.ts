@@ -29,10 +29,8 @@ class Post {
   user: User
 }
 
-const storage = getFromContainer(MetadataStorage)
-const schemas = validationMetadatasToSchemas(
-  _.get(storage, 'validationMetadatas')
-)
+const metadata = _.get(getFromContainer(MetadataStorage), 'validationMetadatas')
+const schemas = validationMetadatasToSchemas(metadata)
 
 describe('classValidatorConverter', () => {
   it('generates OpenAPI schemas from class-validator metadata', () => {
@@ -62,5 +60,13 @@ describe('classValidatorConverter', () => {
         type: 'object'
       }
     })
+  })
+
+  it('handles isDefined', () => {
+    // TODO
+  })
+
+  it('handles each: true ', () => {
+    // TODO
   })
 })

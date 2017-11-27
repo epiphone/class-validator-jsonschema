@@ -24,13 +24,11 @@ class Post {
   title: string
 }
 
-const storage = getFromContainer(MetadataStorage)
+const metadata = _.get(getFromContainer(MetadataStorage), 'validationMetadatas')
 
 describe('custom validation classes', () => {
   it('uses property type if no additional converter is supplied', () => {
-    const schemas = validationMetadatasToSchemas(
-      _.get(storage, 'validationMetadatas')
-    )
+    const schemas = validationMetadatasToSchemas(metadata)
     expect(schemas.Post).toEqual({
       properties: {
         title: { type: 'string' }
@@ -41,23 +39,20 @@ describe('custom validation classes', () => {
   })
 
   it('uses additionalConverter to generate schema when supplied', () => {
-    const schemas = validationMetadatasToSchemas(
-      _.get(storage, 'validationMetadatas'),
-      {
-        additionalConverters: {
-          customValidation: meta => {
-            if (meta.constraintCls === CustomTextLength) {
-              return {
-                maxLength: meta.constraints[1] - 1,
-                minLength: meta.constraints[0] + 1,
-                type: 'string'
-              }
+    const schemas = validationMetadatasToSchemas(metadata, {
+      additionalConverters: {
+        customValidation: meta => {
+          if (meta.constraintCls === CustomTextLength) {
+            return {
+              maxLength: meta.constraints[1] - 1,
+              minLength: meta.constraints[0] + 1,
+              type: 'string'
             }
-            return {}
           }
+          return {}
         }
       }
-    )
+    })
 
     expect(schemas.Post).toEqual({
       properties: {
