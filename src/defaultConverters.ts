@@ -5,23 +5,28 @@ import * as _ from 'lodash'
 import { SchemaObject } from 'openapi3-ts'
 import 'reflect-metadata'
 
+import { IOptions } from './options'
+
 export interface ISchemaConverters {
   [validatorType: string]: SchemaConverter
 }
 
-export type SchemaConverter = (meta: ValidationMetadata) => SchemaObject | void
+export type SchemaConverter = (
+  meta: ValidationMetadata,
+  options: IOptions
+) => SchemaObject | void
 
 export const defaultConverters: ISchemaConverters = {
-  [ValidationTypes.CUSTOM_VALIDATION]: meta => {
+  [ValidationTypes.CUSTOM_VALIDATION]: (meta, options) => {
     if (_.isFunction(meta.target)) {
       const type = getPropType(meta.target.prototype, meta.propertyName)
-      return targetToSchema(type)
+      return targetToSchema(type, options)
     }
   },
-  [ValidationTypes.NESTED_VALIDATION]: meta => {
+  [ValidationTypes.NESTED_VALIDATION]: (meta, options) => {
     if (_.isFunction(meta.target)) {
       const childType = getPropType(meta.target.prototype, meta.propertyName)
-      return targetToSchema(childType)
+      return targetToSchema(childType, options)
     }
   },
   [ValidationTypes.CONDITIONAL_VALIDATION]: () => ({}),
@@ -338,7 +343,7 @@ function constraintToSchema(primitive: any): SchemaObject | void {
   }
 }
 
-function targetToSchema(type: any): SchemaObject | void {
+function targetToSchema(type: any, options: IOptions): SchemaObject | void {
   if (_.isFunction(type)) {
     if (_.isString(type.prototype) || _.isSymbol(type.prototype)) {
       return { type: 'string' }
@@ -348,6 +353,6 @@ function targetToSchema(type: any): SchemaObject | void {
       return { type: 'boolean' }
     }
 
-    return { $ref: '#/components/schemas/' + type.name }
+    return { $ref: options.refPointerPrefix + type.name }
   }
 }

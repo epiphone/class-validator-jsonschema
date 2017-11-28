@@ -1,20 +1,12 @@
 // tslint:disable:no-submodule-imports
-import { ValidationTypes, ValidatorOptions } from 'class-validator'
+import { ValidationTypes } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata'
 import * as _ from 'lodash'
 import { SchemaObject } from 'openapi3-ts'
 const debug = require('debug')('routing-controllers-openapi')
 
-import { defaultConverters, ISchemaConverters } from './defaultConverters'
-
-export interface IOptions extends ValidatorOptions {
-  /**
-   * A map of additional metadata-to-schema converters that can be used to
-   * supplement or override the default ones. The key should correspond to the
-   * 'type' property of a ValidationMetadata object.
-   */
-  additionalConverters?: ISchemaConverters
-}
+import { defaultConverters } from './defaultConverters'
+import { defaultOptions, IOptions } from './options'
 
 /**
  * Convert class-validator metadata objects into OpenAPI Schema definitions.
@@ -22,18 +14,19 @@ export interface IOptions extends ValidatorOptions {
  */
 export function validationMetadatasToSchemas(
   metadatas: ValidationMetadata[],
-  options: IOptions = {}
+  userOptions?: Partial<IOptions>
 ) {
-  const converters = {
-    ...defaultConverters,
-    ...options.additionalConverters
+  const options: IOptions = {
+    ...defaultOptions,
+    ...userOptions
   }
+
   const schemas: { [key: string]: SchemaObject } = _(metadatas)
     .groupBy('target.name')
     .map((schemaMetas, schemaName) => {
       const properties = _(schemaMetas)
         .groupBy('propertyName')
-        .mapValues(propMetas => applySchemaConverters(propMetas, converters))
+        .mapValues(propMetas => applySchemaConverters(propMetas, options))
         .value()
 
       const schema = {
@@ -55,15 +48,16 @@ export function validationMetadatasToSchemas(
  */
 function applySchemaConverters(
   propertyMetadatas: ValidationMetadata[],
-  converters: ISchemaConverters
+  options: IOptions
 ): SchemaObject {
+  const converters = { ...defaultConverters, ...options.additionalConverters }
   const convert = (meta: ValidationMetadata) => {
     if (!converters[meta.type]) {
       debug('No schema converter found for validation metadata', meta)
       return {}
     }
 
-    const items = converters[meta.type](meta)
+    const items = converters[meta.type](meta, options)
     return meta.each ? { items, type: 'array' } : items
   }
 

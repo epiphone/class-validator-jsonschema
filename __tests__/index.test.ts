@@ -38,7 +38,7 @@ describe('classValidatorConverter', () => {
       Post: {
         properties: {
           user: {
-            $ref: '#/components/schemas/User'
+            $ref: '#/definitions/User'
           }
         },
         required: [],
