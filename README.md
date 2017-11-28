@@ -53,14 +53,16 @@ which prints out:
 }
 ```
 
-`validationMetadatasToSchemas` takes an `options` object as an optional second parameter. Check available options and defaults at [`options.ts`](src/options.ts).
+`validationMetadatasToSchemas` takes an `options` object as an optional second parameter. Check available configuration objects and defaults at [`options.ts`](src/options.ts).
 
 ### Adding and overriding default converters
 
-With the `options.additionalConverters` you can add new validation metadata converters or override [the existing ones](src/defaultConverters.ts). Let's say we want to, for example, add a handy `description` field to each `@IsString()`-decorated property:
+With `options.additionalConverters` you can add new validation metadata converters or override [the existing ones](src/defaultConverters.ts). Let's say we want to, for example, add a handy `description` field to each `@IsString()`-decorated property:
 
 ```typescript
 import { ValidationTypes } from 'class-validator'
+
+// ...
 
 const schemas = validationMetadatasToSchemas(metadatas, {
   additionalConverters: {
@@ -102,7 +104,7 @@ type SchemaConverter = (meta: ValidationMetadata, options: IOptions) => SchemaOb
 ```typescript
 import { Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator'
 
-// Implementing the validator...
+// Implementing the validator:
 
 @ValidatorConstraint()
 export class CustomTextLength implements ValidatorConstraintInterface {
@@ -127,7 +129,7 @@ const schemas = validationMetadatasToSchemas(
   validationMetadatas,
   {
     additionalConverters: {
-      customValidation: meta => {
+      [ValidationTypes.CUSTOM_VALIDATION]: meta => {
         if (meta.constraintCls === CustomTextLength) {
           return {
             maxLength: meta.constraints[1],
@@ -135,7 +137,6 @@ const schemas = validationMetadatasToSchemas(
             type: 'string'
           }
         }
-        return {}
       }
     }
   }
@@ -144,7 +145,7 @@ const schemas = validationMetadatasToSchemas(
 
 ## Limitations
 
-The OpenAPI spec doesn't currently support the new JSON Schema draft-06 keywords `const` and `contains`. This means that constant value decorators `@IsEqual()` and `@ArrayContains()` (and their negations) translate to quite [complicated schemas](https://github.com/sahava/gtm-datalayer-test/issues/4). Hopefully [in a not too distant future](https://github.com/OAI/OpenAPI-Specification/issues/1313#issuecomment-335893062) these keywords are adopted into the spec and we'll be able to provide neater conversion.
+The OpenAPI spec doesn't currently support the new JSON Schema draft-06 keywords `const` and `contains`. This means that constant value decorators such as `@IsEqual()` and `@ArrayContains()` translate to quite [complicated schemas](https://github.com/sahava/gtm-datalayer-test/issues/4). Hopefully [in a not too distant future](https://github.com/OAI/OpenAPI-Specification/issues/1313#issuecomment-335893062) these keywords are adopted into the spec and we'll be able to provide neater conversion.
 
 ## TODO
 

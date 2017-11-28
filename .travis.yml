@@ -4,3 +4,5 @@ node_js:
 cache: yarn
 notifications:
   email: false
+after_success:
+  - yarn send-coverage
