@@ -1,4 +1,6 @@
 import {
+  ArrayMaxSize,
+  ArrayNotContains,
   getFromContainer,
   IsOptional,
   IsString,
@@ -19,6 +21,8 @@ class User {
 
   @IsOptional()
   @MaxLength(20, { each: true })
+  @ArrayMaxSize(5)
+  @ArrayNotContains(['admin'])
   tags: string[]
 }
 
@@ -33,7 +37,7 @@ const metadata = _.get(getFromContainer(MetadataStorage), 'validationMetadatas')
 const schemas = validationMetadatasToSchemas(metadata)
 
 describe('classValidatorConverter', () => {
-  it('generates OpenAPI schemas from class-validator metadata', () => {
+  it('combines converted class-validator metadata into JSON Schemas', () => {
     expect(schemas).toEqual({
       Post: {
         properties: {
@@ -51,8 +55,12 @@ describe('classValidatorConverter', () => {
           tags: {
             items: {
               maxLength: 20,
+              not: {
+                anyOf: [{ enum: ['admin'], type: 'string' }]
+              },
               type: 'string'
             },
+            maxItems: 5,
             type: 'array'
           }
         },
@@ -63,10 +71,6 @@ describe('classValidatorConverter', () => {
   })
 
   it('handles isDefined', () => {
-    // TODO
-  })
-
-  it('handles each: true ', () => {
     // TODO
   })
 })

@@ -9,7 +9,7 @@ import { defaultConverters } from './defaultConverters'
 import { defaultOptions, IOptions } from './options'
 
 /**
- * Convert class-validator metadata objects into OpenAPI Schema definitions.
+ * Convert class-validator metadata objects into JSON Schema definitions.
  * @param metadatas All class-validator metadata objects.
  */
 export function validationMetadatasToSchemas(

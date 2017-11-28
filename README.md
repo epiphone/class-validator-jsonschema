@@ -23,12 +23,12 @@ class BlogPost {
   tags: string[]
 }
 
-const metadata = getFromContainer(MetadataStorage).validationMetadata
-const schemas = validationMetadatasToSchemas(metadata)
+const metadatas = getFromContainer(MetadataStorage).validationMetadata
+const schemas = validationMetadatasToSchemas(metadatas)
 console.log(schemas)
 ```
 
-Will output:
+which prints out:
 
 ```json
 {
@@ -53,13 +53,53 @@ Will output:
 }
 ```
 
-`validationMetadatasToSchemas` takes an optional options object as a second parameter. Check available options and defaults at [`options.ts`](src/options.ts).
+`validationMetadatasToSchemas` takes an `options` object as an optional second parameter. Check available options and defaults at [`options.ts`](src/options.ts).
+
+### Adding and overriding default converters
+
+With the `options.additionalConverters` you can add new validation metadata converters or override [the existing ones](src/defaultConverters.ts). Let's say we want to, for example, add a handy `description` field to each `@IsString()`-decorated property:
+
+```typescript
+import { ValidationTypes } from 'class-validator'
+
+const schemas = validationMetadatasToSchemas(metadatas, {
+  additionalConverters: {
+    [ValidationTypes.IS_STRING]: {
+      description: 'A string value',
+      type: 'string'
+    }
+  }
+})
+```
+
+which now outputs:
+
+```json
+{
+  "BlogPost": {
+    "properties": {
+      "id": {
+        "description": "A string value",
+        "type": "string"
+      },
+      // ...
+    }
+  }
+}
+```
+
+An additional converter can also be supplied in form of a function that receives the validation metadata item and global options, outputting a JSON Schema property object (see below for usage):
+
+```typescript
+type SchemaConverter = (meta: ValidationMetadata, options: IOptions) => SchemaObject | void
+```
+
 
 ### Custom validation classes
 
 `class-validator` allows you to define [custom validation classes](https://github.com/typestack/class-validator#custom-validation-classes). You might for example validate that a string's length is between given two values:
 
-```javascript
+```typescript
 import { Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator'
 
 // Implementing the validator...
@@ -80,9 +120,9 @@ class Post {
 }
 ```
 
-By default `class-validator-jsonschema` doesn't know how to convert `Post.title` into JSON Schema. To handle custom validators like this add a `customValidation` converter into `options.additionalConverters`:
+Now to handle your custom validator's JSON Schema conversion include a `customValidation` converter in `options.additionalConverters`:
 
-```javascript
+```typescript
 const schemas = validationMetadatasToSchemas(
   validationMetadatas,
   {
@@ -104,11 +144,14 @@ const schemas = validationMetadatasToSchemas(
 
 ## Limitations
 
-The OpenAPI spec doesn't currently support the new JSON Schema draft 6 keywords `const` and `contains`. This means that constant value decorators `@IsEqual()` and `@ArrayContains()` (and their negations) translate to quite [complicated schemas](https://github.com/sahava/gtm-datalayer-test/issues/4). Hopefully [in a not too distant future](https://github.com/OAI/OpenAPI-Specification/issues/1313#issuecomment-335893062) these keywords are adopted into the spec and we'll be able to provide neater conversion.
+The OpenAPI spec doesn't currently support the new JSON Schema draft-06 keywords `const` and `contains`. This means that constant value decorators `@IsEqual()` and `@ArrayContains()` (and their negations) translate to quite [complicated schemas](https://github.com/sahava/gtm-datalayer-test/issues/4). Hopefully [in a not too distant future](https://github.com/OAI/OpenAPI-Specification/issues/1313#issuecomment-335893062) these keywords are adopted into the spec and we'll be able to provide neater conversion.
 
 ## TODO
 
 - [ ] handle `skipMissingProperties`
 - [ ] decorators for overwriting prop schemas
 - [ ] property descriptions (e.g. `A Base64-encoded string`)
-- [ ] split tests by decorator type
+- [ ] conditional validation?
+- [ ] option for enabling draft-06 keywords
+- [ ] define limitations more thoroughly
+- [ ] `IS_EMPTY` and `IS_DEFINED`
