@@ -3,11 +3,11 @@
 
 Convert [class-validator](https://github.com/typestack/class-validator)-decorated classes into OpenAPI-compatible JSON Schema. The aim is to provide a best-effort conversion: since some of the `class-validator` decorators lack a direct JSON Schema counterpart, the conversion is bound to be somewhat opinionated. To account for this multiple extension points are available.
 
-**Work in progress!**
 
 ## Installation
 
-`yarn add class-validator-jsonschema`
+**Work in progress!**
+~~`yarn add class-validator-jsonschema`~~
 
 ## Usage
 
