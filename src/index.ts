@@ -52,12 +52,13 @@ function applySchemaConverters(
 ): SchemaObject {
   const converters = { ...defaultConverters, ...options.additionalConverters }
   const convert = (meta: ValidationMetadata) => {
-    if (!converters[meta.type]) {
+    const converter = converters[meta.type]
+    if (!converter) {
       debug('No schema converter found for validation metadata', meta)
       return {}
     }
 
-    const items = converters[meta.type](meta, options)
+    const items = _.isFunction(converter) ? converter(meta, options) : converter
     return meta.each ? { items, type: 'array' } : items
   }
 

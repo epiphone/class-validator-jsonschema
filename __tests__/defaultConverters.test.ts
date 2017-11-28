@@ -48,7 +48,9 @@ class User {
 
   // Number validation decorators:
   @validator.IsDivisibleBy(4)
-  isDivisibleBy: number
+  isDivisibleByInt: number
+  @validator.IsDivisibleBy(1.1)
+  isDivisibleByFloat: number
   @validator.IsPositive() isPositive: number
   @validator.IsNegative() isNegative: number
   @validator.Max(10)
@@ -151,6 +153,7 @@ describe('defaultConverters', () => {
           isInNumber: { enum: [1, 2], type: 'number' },
           isInClass: {},
           isNotIn: { not: { enum: ['x', 'y'], type: 'string' } },
+
           isBoolean: { type: 'boolean' },
           isDate: {
             oneOf: [
@@ -163,11 +166,14 @@ describe('defaultConverters', () => {
           isInt: { type: 'integer' },
           isArray: { items: {}, type: 'array' },
           isEnum: { type: 'string', enum: ['0', '1', 'Public', 'Private'] },
-          isDivisibleBy: { description: 'Divisible by 4', type: 'number' },
+
+          isDivisibleByInt: { multipleOf: 4, type: 'number' },
+          isDivisibleByFloat: { multipleOf: 1.1, type: 'number' },
           isPositive: { type: 'number', minimum: 0, exclusiveMinimum: true },
           isNegative: { type: 'number', maximum: 0, exclusiveMaximum: true },
           max: { type: 'number', maximum: 10 },
           min: { type: 'number', minimum: 1 },
+
           minDate: {
             description: `After ${new Date('2017').toJSON()}`,
             oneOf: [
@@ -182,6 +188,7 @@ describe('defaultConverters', () => {
               { format: 'date-time', type: 'string' }
             ]
           },
+
           isBooleanString: { type: 'string', enum: ['true', 'false'] },
           isDateString: {
             pattern: 'd{4}-[01]d-[0-3]dT[0-2]d:[0-5]d:[0-5]d.d+Z?',
