@@ -147,12 +147,25 @@ const schemas = validationMetadatasToSchemas(
 
 The OpenAPI spec doesn't currently support the new JSON Schema draft-06 keywords `const` and `contains`. This means that constant value decorators such as `@IsEqual()` and `@ArrayContains()` translate to quite [complicated schemas](https://github.com/sahava/gtm-datalayer-test/issues/4). Hopefully [in a not too distant future](https://github.com/OAI/OpenAPI-Specification/issues/1313#issuecomment-335893062) these keywords are adopted into the spec and we'll be able to provide neater conversion.
 
+Handling null values is also tricky since OpenAPI doesn't support JSON Schema's `type: null`, providing its own `nullable` keyword instead. The default `@IsEmpty()` converter for example opts for `nullable` but you can use `type: null` instead via `options.additionalConverters`:
+
+```typescript
+// ...
+additionalConverters: {
+  [ValidationTypes.IS_EMPTY]: {
+    anyOf: [
+      {type: 'string', enum: ['']},
+      {type: 'null'}
+    ]
+  }
+}
+```
+
 ## TODO
 
-- [ ] handle `skipMissingProperties`
+- [ ] handle `skipMissingProperties` and `@isDefined()`
 - [ ] decorators for overwriting prop schemas
 - [ ] property descriptions (e.g. `A Base64-encoded string`)
 - [ ] conditional validation?
 - [ ] option for enabling draft-06 keywords
 - [ ] define limitations more thoroughly
-- [ ] `IS_EMPTY` and `IS_DEFINED`

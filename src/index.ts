@@ -71,9 +71,13 @@ function applySchemaConverters(
  * @param metadatas Validation metadata objects of the validated class.
  */
 function getRequiredPropNames(metadatas: ValidationMetadata[]) {
+  const optionalValidators = [
+    ValidationTypes.CONDITIONAL_VALIDATION,
+    ValidationTypes.IS_EMPTY
+  ]
   return _(metadatas)
     .groupBy('propertyName')
-    .omitBy(d => _.find(d, { type: ValidationTypes.CONDITIONAL_VALIDATION }))
+    .omitBy(d => _.find(d, ({ type }) => _.includes(optionalValidators, type)))
     .keys()
     .value()
 }

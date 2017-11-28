@@ -25,6 +25,7 @@ class User {
   notEqualsNumber: number
   @validator.NotEquals({ someKey: 'x' })
   notEqualsComplex: object
+  @validator.IsEmpty() isEmpty?: string
   @validator.IsNotEmpty() isNotEmpty: string
   @validator.IsIn([])
   isInEmpty: string
@@ -147,6 +148,24 @@ describe('defaultConverters', () => {
           notEqualsString: { not: { type: 'string', enum: ['x'] } },
           notEqualsNumber: { not: { type: 'number', enum: [123.23] } },
           notEqualsComplex: {},
+          isEmpty: {
+            anyOf: [
+              { type: 'string', enum: [''] },
+              {
+                nullable: true,
+                not: {
+                  anyOf: [
+                    { type: 'string' },
+                    { type: 'number' },
+                    { type: 'boolean' },
+                    { type: 'integer' },
+                    { type: 'array' },
+                    { type: 'object' }
+                  ]
+                }
+              }
+            ]
+          },
           isNotEmpty: { minLength: 1, type: 'string' },
           isInEmpty: {},
           isInString: { enum: ['x', 'y'], type: 'string' },

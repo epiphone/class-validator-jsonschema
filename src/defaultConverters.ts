@@ -30,7 +30,7 @@ export const defaultConverters: ISchemaConverters = {
     }
   },
   [ValidationTypes.CONDITIONAL_VALIDATION]: {},
-  [ValidationTypes.IS_DEFINED]: _meta => ({}),
+  [ValidationTypes.IS_DEFINED]: _meta => ({}), // TODO handle
   [ValidationTypes.EQUALS]: meta => {
     const schema = constraintToSchema(meta.constraints[0])
     if (schema) {
@@ -43,7 +43,24 @@ export const defaultConverters: ISchemaConverters = {
       return { not: { ...schema, enum: [meta.constraints[0]] } }
     }
   },
-  [ValidationTypes.IS_EMPTY]: _meta => ({}),
+  [ValidationTypes.IS_EMPTY]: {
+    anyOf: [
+      { type: 'string', enum: [''] },
+      {
+        not: {
+          anyOf: [
+            { type: 'string' },
+            { type: 'number' },
+            { type: 'boolean' },
+            { type: 'integer' },
+            { type: 'array' },
+            { type: 'object' }
+          ]
+        },
+        nullable: true
+      }
+    ]
+  },
   [ValidationTypes.IS_NOT_EMPTY]: {
     minLength: 1,
     type: 'string'

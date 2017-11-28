@@ -2,6 +2,7 @@ import {
   ArrayMaxSize,
   ArrayNotContains,
   getFromContainer,
+  IsEmpty,
   IsOptional,
   IsString,
   MaxLength,
@@ -24,6 +25,8 @@ class User {
   @ArrayMaxSize(5)
   @ArrayNotContains(['admin'])
   tags: string[]
+
+  @IsEmpty() empty: string
 }
 
 // @ts-ignore: not referenced
@@ -50,6 +53,24 @@ describe('classValidatorConverter', () => {
       },
       User: {
         properties: {
+          empty: {
+            anyOf: [
+              { type: 'string', enum: [''] },
+              {
+                not: {
+                  anyOf: [
+                    { type: 'string' },
+                    { type: 'number' },
+                    { type: 'boolean' },
+                    { type: 'integer' },
+                    { type: 'array' },
+                    { type: 'object' }
+                  ]
+                },
+                nullable: true
+              }
+            ]
+          },
           firstName: { minLength: 5, type: 'string' },
           id: { type: 'string' },
           tags: {
@@ -68,9 +89,5 @@ describe('classValidatorConverter', () => {
         type: 'object'
       }
     })
-  })
-
-  it('handles isDefined', () => {
-    // TODO
   })
 })
