@@ -1,6 +1,11 @@
 language: node_js
 node_js:
   - 8
-cache: yarn
+cache:
+  directories:
+    - node_modules
+    - ${HOME}/.cache/yarn
 notifications:
   email: false
+after_success:
+- yarn send-coverage
