@@ -1,12 +1,15 @@
-// tslint:disable:no-submodule-imports
+// tslint:disable:no-submodule-imports ban-types
 import { ValidationTypes } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata'
 import * as _ from 'lodash'
 import { SchemaObject } from 'openapi3-ts'
 const debug = require('debug')('routing-controllers-openapi')
 
+import { getMetadataSchema } from './decorators'
 import { defaultConverters } from './defaultConverters'
 import { defaultOptions, IOptions } from './options'
+
+export { JSONSchema } from './decorators'
 
 /**
  * Convert class-validator metadata objects into JSON Schema definitions.
@@ -23,21 +26,24 @@ export function validationMetadatasToSchemas(
 
   const schemas: { [key: string]: SchemaObject } = _(metadatas)
     .groupBy('target.name')
-    .map((schemaMetas, schemaName) => {
+    .mapValues(schemaMetas => {
+      const target = schemaMetas[0].target as Function
       const properties = _(schemaMetas)
         .groupBy('propertyName')
-        .mapValues(propMetas => applySchemaConverters(propMetas, options))
+        .mapValues((propMetas, propKey) => {
+          const schema = applyConverters(propMetas, options)
+          return applyDecorators(schema, target, options, propKey)
+        })
         .value()
 
-      const schema = {
+      const definitionSchema = {
         properties,
         required: getRequiredPropNames(schemaMetas, options),
         type: 'object'
       }
 
-      return [schemaName, schema]
+      return applyDecorators(definitionSchema, target.constructor, options)
     })
-    .fromPairs()
     .value()
 
   return schemas
@@ -46,7 +52,7 @@ export function validationMetadatasToSchemas(
 /**
  * Convert a property's class-validator metadata into an OpenAPI Schema property.
  */
-function applySchemaConverters(
+function applyConverters(
   propertyMetadatas: ValidationMetadata[],
   options: IOptions
 ): SchemaObject {
@@ -64,6 +70,18 @@ function applySchemaConverters(
 
   // @ts-ignore: array spread
   return _.merge(...propertyMetadatas.map(convert))
+}
+
+function applyDecorators(
+  schema: SchemaObject,
+  target: Function,
+  options: IOptions,
+  propertyName?: string
+): SchemaObject {
+  const additionalSchema = getMetadataSchema(target.prototype, propertyName)
+  return _.isFunction(additionalSchema)
+    ? additionalSchema(schema, options)
+    : _.merge(schema, additionalSchema)
 }
 
 /**
