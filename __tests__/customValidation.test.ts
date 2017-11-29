@@ -24,6 +24,15 @@ class Post {
   title: string
 }
 
+// @ts-ignore: not referenced
+class InvalidPost {
+  @Validate(CustomTextLength, [0, 11])
+  titleNumber: number
+
+  @Validate(CustomTextLength, [0, 11])
+  titleBoolean: boolean
+}
+
 const metadata = _.get(getFromContainer(MetadataStorage), 'validationMetadatas')
 
 describe('custom validation classes', () => {
@@ -34,6 +43,15 @@ describe('custom validation classes', () => {
         title: { type: 'string' }
       },
       required: ['title'],
+      type: 'object'
+    })
+
+    expect(schemas.InvalidPost).toEqual({
+      properties: {
+        titleBoolean: { type: 'boolean' },
+        titleNumber: { type: 'number' }
+      },
+      required: ['titleNumber', 'titleBoolean'],
       type: 'object'
     })
   })

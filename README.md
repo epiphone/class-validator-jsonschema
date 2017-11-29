@@ -163,9 +163,10 @@ additionalConverters: {
 
 ## TODO
 
-- [ ] handle `skipMissingProperties` and `@isDefined()`
+- [x] handle `skipMissingProperties` and `@isDefined()`
 - [ ] decorators for overwriting prop schemas
 - [ ] property descriptions (e.g. `A Base64-encoded string`)
 - [ ] conditional validation?
 - [ ] option for enabling draft-06 keywords
 - [ ] define limitations more thoroughly
+- [ ] groups?

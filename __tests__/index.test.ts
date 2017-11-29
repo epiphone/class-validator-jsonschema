@@ -1,3 +1,4 @@
+// tslint:disable:no-submodule-imports
 import {
   ArrayMaxSize,
   ArrayNotContains,
@@ -10,6 +11,7 @@ import {
   MinLength,
   ValidateNested
 } from 'class-validator'
+import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata'
 import * as _ from 'lodash'
 
 import { validationMetadatasToSchemas } from '../src'
@@ -36,11 +38,36 @@ class Post {
   user: User
 }
 
-const metadata = _.get(getFromContainer(MetadataStorage), 'validationMetadatas')
-const schemas = validationMetadatasToSchemas(metadata)
-
 describe('classValidatorConverter', () => {
+  it('handles empty metadata', () => {
+    expect(validationMetadatasToSchemas([])).toEqual({})
+  })
+
+  it('returns empty schema object when no converter found', () => {
+    const customMetadata: ValidationMetadata = {
+      always: false,
+      constraintCls: () => undefined,
+      constraints: [],
+      each: false,
+      groups: [],
+      message: '',
+      propertyName: 'id',
+      target: User,
+      type: 'NON_EXISTENT_METADATA_TYPE',
+      validationTypeOptions: {}
+    }
+
+    const schemas = validationMetadatasToSchemas([customMetadata])
+    expect(schemas.User.properties!.id).toEqual({})
+  })
+
   it('combines converted class-validator metadata into JSON Schemas', () => {
+    const metadata = _.get(
+      getFromContainer(MetadataStorage),
+      'validationMetadatas'
+    )
+    const schemas = validationMetadatasToSchemas(metadata)
+
     expect(schemas).toEqual({
       Post: {
         properties: {

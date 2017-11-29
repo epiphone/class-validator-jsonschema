@@ -15,6 +15,7 @@ enum PostType {
 // @ts-ignore: not referenced
 class User {
   // Common validation decorators:
+  @validator.IsDefined() isDefined: string
   @validator.Equals('x') equalsString: string
   @validator.Equals(123.23)
   equalsNumber: number
@@ -123,6 +124,8 @@ class User {
   arrayContainsComplex: any[]
   @validator.ArrayNotContains(['x', 'y'])
   arrayNotContains: string[]
+  @validator.ArrayNotContains([{ someKey: 'x' }, 3])
+  arrayNotContainsComplex: any[]
   @validator.ArrayNotEmpty() arrayNotEmpty: any[]
   @validator.ArrayMinSize(1)
   arrayMinSize: any[]
@@ -142,6 +145,7 @@ describe('defaultConverters', () => {
     expect(schemas).toEqual({
       User: {
         properties: {
+          isDefined: {},
           equalsString: { type: 'string', enum: ['x'] },
           equalsNumber: { type: 'number', enum: [123.23] },
           equalsComplex: {},
@@ -310,6 +314,7 @@ describe('defaultConverters', () => {
               }
             }
           },
+          arrayNotContainsComplex: { type: 'array', items: {} },
           arrayNotEmpty: { type: 'array', items: {}, minItems: 1 },
           arrayMinSize: { type: 'array', items: {}, minItems: 1 },
           arrayMaxSize: { type: 'array', items: {}, maxItems: 10 },

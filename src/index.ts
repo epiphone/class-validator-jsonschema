@@ -31,7 +31,7 @@ export function validationMetadatasToSchemas(
 
       const schema = {
         properties,
-        required: getRequiredPropNames(schemaMetas),
+        required: getRequiredPropNames(schemaMetas, options),
         type: 'object'
       }
 
@@ -70,14 +70,21 @@ function applySchemaConverters(
  * Get the required property names of a validated class.
  * @param metadatas Validation metadata objects of the validated class.
  */
-function getRequiredPropNames(metadatas: ValidationMetadata[]) {
+function getRequiredPropNames(
+  metadatas: ValidationMetadata[],
+  options: IOptions
+) {
   const optionalValidators = [
     ValidationTypes.CONDITIONAL_VALIDATION,
     ValidationTypes.IS_EMPTY
   ]
   return _(metadatas)
     .groupBy('propertyName')
-    .omitBy(d => _.find(d, ({ type }) => _.includes(optionalValidators, type)))
+    .pickBy(d => {
+      return options.skipMissingProperties
+        ? _.some(d, { type: ValidationTypes.IS_DEFINED })
+        : !_.some(d, ({ type }) => _.includes(optionalValidators, type))
+    })
     .keys()
     .value()
 }

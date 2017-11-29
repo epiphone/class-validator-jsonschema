@@ -30,7 +30,7 @@ export const defaultConverters: ISchemaConverters = {
     }
   },
   [ValidationTypes.CONDITIONAL_VALIDATION]: {},
-  [ValidationTypes.IS_DEFINED]: _meta => ({}), // TODO handle
+  [ValidationTypes.IS_DEFINED]: {},
   [ValidationTypes.EQUALS]: meta => {
     const schema = constraintToSchema(meta.constraints[0])
     if (schema) {

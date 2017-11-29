@@ -1,5 +1,7 @@
 import {
   getFromContainer,
+  IsDefined,
+  IsEmail,
   IsOptional,
   IsString,
   MaxLength,
@@ -12,7 +14,11 @@ import * as _ from 'lodash'
 import { validationMetadatasToSchemas } from '../src'
 
 class User {
-  @IsString() id: string
+  @IsDefined()
+  @IsString()
+  id: string
+
+  @IsEmail() email: string
 
   @IsOptional()
   @MaxLength(20, { each: true })
@@ -48,6 +54,7 @@ describe('options', () => {
 
   it('overwrites default converters with additionalConverters', () => {
     expect(defaultSchemas.User.properties).toEqual({
+      email: { format: 'email', type: 'string' },
       id: { type: 'string' },
       tags: {
         items: { type: 'string', maxLength: 20 },
@@ -70,14 +77,23 @@ describe('options', () => {
     })
 
     expect(schemas.User.properties).toEqual({
-      id: {
-        description: 'A string value',
-        type: 'string'
-      },
+      email: { format: 'email', type: 'string' },
+      id: { description: 'A string value', type: 'string' },
       tags: {
         items: { exclusiveMaximum: true, type: 'string', maxLength: 21 },
         type: 'array'
       }
     })
+  })
+
+  it('handles required properties as per skipMissingProperties option', () => {
+    expect(defaultSchemas.User.required).toEqual(['id', 'email'])
+    expect(defaultSchemas.Post.required).toEqual([])
+
+    const schemas = validationMetadatasToSchemas(metadata, {
+      skipMissingProperties: true
+    })
+    expect(schemas.User.required).toEqual(['id'])
+    expect(schemas.Post.required).toEqual([])
   })
 })
