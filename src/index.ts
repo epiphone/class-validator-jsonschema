@@ -50,7 +50,7 @@ export function validationMetadatasToSchemas(
 }
 
 /**
- * Convert a property's class-validator metadata into an OpenAPI Schema property.
+ * Convert a property's class-validator metadata into a JSON Schema property.
  */
 function applyConverters(
   propertyMetadatas: ValidationMetadata[],
@@ -72,6 +72,10 @@ function applyConverters(
   return _.merge(...propertyMetadatas.map(convert))
 }
 
+/**
+ * Given a JSON Schema object, supplement it with additional schema properties
+ * defined by target object's @JSONSchema decorator.
+ */
 function applyDecorators(
   schema: SchemaObject,
   target: Function,

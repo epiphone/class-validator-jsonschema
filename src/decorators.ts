@@ -5,16 +5,23 @@ import { IOptions } from './options'
 
 const SCHEMA_KEY = Symbol('class-validator-jsonschema:JSONSchema')
 
+/**
+ * Either a plain JSON Schema object that gets merged into the existing schema,
+ * or a function that receives as parameters the existing schema and global
+ * options, returning an updated schema.
+ */
 export type DecoratorSchema =
   | SchemaObject
-  | ((src: SchemaObject, options: IOptions) => SchemaObject)
+  | ((source: SchemaObject, options: IOptions) => SchemaObject)
 
 /**
  * Supplement class or property with additional JSON Schema keywords.
  *
- * Keywords defined here are merged with the keywords derived from
+ * @param schema JSON Schema object that is merged into the schema derived from
  * class-validator decorators. In case of conflicts, keywords defined here
- * overwrite the existing ones.
+ * overwrite the existing ones. Alternatively you can supply a function that
+ * receives as parameters the existing schema and global options, returning an
+ * updated schema.
  */
 export function JSONSchema(schema: DecoratorSchema) {
   return (target: object, key?: string) => {
@@ -22,6 +29,9 @@ export function JSONSchema(schema: DecoratorSchema) {
   }
 }
 
+/**
+ * Get the JSON Schema stored in given target's metadata.
+ */
 export function getMetadataSchema(
   target: object,
   key?: string
@@ -32,7 +42,10 @@ export function getMetadataSchema(
   return schema || {}
 }
 
-export function setMetadataSchema(
+/**
+ * Store given JSON Schema into target object's metadata.
+ */
+function setMetadataSchema(
   value: DecoratorSchema,
   target: object,
   key?: string

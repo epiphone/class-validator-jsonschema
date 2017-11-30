@@ -3,7 +3,6 @@
 
 Convert [class-validator](https://github.com/typestack/class-validator)-decorated classes into OpenAPI-compatible JSON Schema. The aim is to provide a best-effort conversion: since some of the `class-validator` decorators lack a direct JSON Schema counterpart, the conversion is bound to be somewhat opinionated. To account for this multiple extension points are available.
 
-
 ## Installation
 
 `yarn add class-validator-jsonschema`
@@ -143,7 +142,7 @@ const schemas = validationMetadatasToSchemas(
 
 ### Decorating with additional properties
 
-Validation classes can be supplemented with the `@JSONSchema()` decorator. `@JSONSchema` can be applied both on classes and individual properties.
+Validation classes can also be supplemented with the `JSONSchema` decorator. `JSONSchema` can be applied both to classes and individual properties; any given keywords are then [merged](https://lodash.com/docs/4.17.4#merge) into the JSON Schema derived from class-validator decorators:
 
 ```typescript
 import { JSONSchema } from 'class-validator-jsonschema'
@@ -182,11 +181,15 @@ Results in the following schema:
 }
 ```
 
+Alternatively `JSONSchema` can take a function of type `(existingSchema: SchemaObject, options: IOptions) => SchemaObject`. The return value of this function is then **not** automatically merged into existing schema (i.e. the one derived from `class-validator` decorators). Instead you can handle merging yourself in whichever way is preferred, the idea being that removal of existing keywords and other more complex overwrite scenarios can be implemented here.
+
 ## Limitations
 
-The OpenAPI spec doesn't currently support the new JSON Schema draft-06 keywords `const` and `contains`. This means that constant value decorators such as `@IsEqual()` and `@ArrayContains()` translate to quite [complicated schemas](https://github.com/sahava/gtm-datalayer-test/issues/4). Hopefully [in a not too distant future](https://github.com/OAI/OpenAPI-Specification/issues/1313#issuecomment-335893062) these keywords are adopted into the spec and we'll be able to provide neater conversion.
+There's no handling for `class-validator`s **validation groups** or **conditional decorator** (`@ValidateIf`) out-of-the-box. The above-mentioned extension methods can be used to fill the gaps if necessary.
 
-Handling null values is also tricky since OpenAPI doesn't support JSON Schema's `type: null`, providing its own `nullable` keyword instead. The default `@IsEmpty()` converter for example opts for `nullable` but you can use `type: null` instead via `options.additionalConverters`:
+The OpenAPI spec doesn't currently support the new JSON Schema **draft-06 keywords** `const` and `contains`. This means that constant value decorators such as `@IsEqual()` and `@ArrayContains()` translate to quite [complicated schemas](https://github.com/sahava/gtm-datalayer-test/issues/4). Hopefully [in a not too distant future](https://github.com/OAI/OpenAPI-Specification/issues/1313#issuecomment-335893062) these keywords are adopted into the spec and we'll be able to provide neater conversion.
+
+Handling **null values** is also tricky since OpenAPI doesn't support JSON Schema's `type: null`, providing its own `nullable` keyword instead. The default `@IsEmpty()` converter for example opts for `nullable` but you can use `type: null` instead via `options.additionalConverters`:
 
 ```typescript
 // ...
@@ -203,9 +206,6 @@ additionalConverters: {
 ## TODO
 
 - [x] handle `skipMissingProperties` and `@isDefined()`
-- [ ] decorators for overwriting prop schemas
-- [ ] property descriptions (e.g. `A Base64-encoded string`)
-- [ ] conditional validation?
-- [ ] option for enabling draft-06 keywords
-- [ ] define limitations more thoroughly
-- [ ] groups?
+- [x] decorators for overwriting prop schemas
+- [ ] optional property descriptions (e.g. `A Base64-encoded string`)
+- [ ] optional draft-06 keywords
