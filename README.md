@@ -21,7 +21,7 @@ class BlogPost {
   tags: string[]
 }
 
-const metadatas = getFromContainer(MetadataStorage).validationMetadata
+const metadatas = (getFromContainer(MetadataStorage) as any).validationMetadatas
 const schemas = validationMetadatasToSchemas(metadatas)
 console.log(schemas)
 ```
