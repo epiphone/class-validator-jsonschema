@@ -69,7 +69,7 @@ function applyConverters(
   }
 
   // @ts-ignore: array spread
-  return _.merge(...propertyMetadatas.map(convert))
+  return _.merge({}, ...propertyMetadatas.map(convert))
 }
 
 /**

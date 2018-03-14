@@ -1,5 +1,6 @@
 // tslint:disable:no-submodule-imports
 import {
+  IsBoolean,
   ArrayMaxSize,
   ArrayNotContains,
   getFromContainer,
@@ -9,7 +10,7 @@ import {
   MaxLength,
   MetadataStorage,
   MinLength,
-  ValidateNested
+  ValidateNested, Length
 } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata'
 import * as _ from 'lodash'
@@ -36,6 +37,14 @@ class Post {
   @IsOptional()
   @ValidateNested()
   user: User
+
+  @Length(2, 100)
+  @IsOptional()
+  title: string
+
+  @IsBoolean()
+  @IsOptional()
+  published: true
 }
 
 describe('classValidatorConverter', () => {
@@ -73,6 +82,14 @@ describe('classValidatorConverter', () => {
         properties: {
           user: {
             $ref: '#/definitions/User'
+          },
+          title: {
+            maxLength: 100,
+            minLength: 2,
+            "type": "string"
+          },
+          published: {
+            "type": "boolean"
           }
         },
         required: [],
