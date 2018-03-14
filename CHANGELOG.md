@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.0.1] - 2017-11-30
+## [1.1.1] - 2018-03-14
+### Fixed
+- [@scboffspring](https://github.com/scboffspring) fixed schema properties being mutated by `_.merge` [#1](https://github.com/epiphone/class-validator-jsonschema/pull/1)
+
+## [1.1.0] - 2017-11-30
 ### Added
 - Additional class/property schema keywords via the `@JSONSchema` decorator
