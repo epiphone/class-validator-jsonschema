@@ -85,7 +85,7 @@ function applyDecorators(
   const additionalSchema = getMetadataSchema(target.prototype, propertyName)
   return _.isFunction(additionalSchema)
     ? additionalSchema(schema, options)
-    : _.merge(schema, additionalSchema)
+    : _.merge({}, schema, additionalSchema)
 }
 
 /**

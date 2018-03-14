@@ -1,16 +1,17 @@
 // tslint:disable:no-submodule-imports
 import {
-  IsBoolean,
   ArrayMaxSize,
   ArrayNotContains,
   getFromContainer,
+  IsBoolean,
   IsEmpty,
   IsOptional,
   IsString,
+  Length,
   MaxLength,
   MetadataStorage,
   MinLength,
-  ValidateNested, Length
+  ValidateNested
 } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata'
 import * as _ from 'lodash'
@@ -80,16 +81,16 @@ describe('classValidatorConverter', () => {
     expect(schemas).toEqual({
       Post: {
         properties: {
-          user: {
-            $ref: '#/definitions/User'
+          published: {
+            type: 'boolean'
           },
           title: {
             maxLength: 100,
             minLength: 2,
-            "type": "string"
+            type: 'string'
           },
-          published: {
-            "type": "boolean"
+          user: {
+            $ref: '#/definitions/User'
           }
         },
         required: [],
