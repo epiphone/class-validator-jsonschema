@@ -1,3 +1,4 @@
+// tslint:disable:ban-types
 import { SchemaObject } from 'openapi3-ts'
 import 'reflect-metadata'
 
@@ -24,8 +25,12 @@ export type DecoratorSchema =
  * updated schema.
  */
 export function JSONSchema(schema: DecoratorSchema) {
-  return (target: object, key?: string) => {
-    setMetadataSchema(schema, target, key)
+  return (target: object | Function, key?: string) => {
+    if (key) {
+      setMetadataSchema(schema, target.constructor, key) // Property metadata
+    } else {
+      setMetadataSchema(schema, target, (target as Function).name) // Class metadata
+    }
   }
 }
 
@@ -33,13 +38,10 @@ export function JSONSchema(schema: DecoratorSchema) {
  * Get the JSON Schema stored in given target's metadata.
  */
 export function getMetadataSchema(
-  target: object,
-  key?: string
+  target: object | Function,
+  key: string
 ): DecoratorSchema {
-  const schema = key
-    ? Reflect.getMetadata(SCHEMA_KEY, target.constructor, key)
-    : Reflect.getMetadata(SCHEMA_KEY, target.constructor)
-  return schema || {}
+  return Reflect.getMetadata(SCHEMA_KEY, target.constructor, key) || {}
 }
 
 /**
@@ -47,10 +49,8 @@ export function getMetadataSchema(
  */
 function setMetadataSchema(
   value: DecoratorSchema,
-  target: object,
-  key?: string
+  target: object | Function,
+  key: string
 ) {
-  return key
-    ? Reflect.defineMetadata(SCHEMA_KEY, value, target.constructor, key)
-    : Reflect.defineMetadata(SCHEMA_KEY, value, target.constructor)
+  return Reflect.defineMetadata(SCHEMA_KEY, value, target, key)
 }
