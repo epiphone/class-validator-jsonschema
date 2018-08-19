@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.1.2] - 2018-08-19
+### Fixed
+- Add missing handling for [inherited validation decorators](https://github.com/typestack/class-validator#inheriting-validation-decorators) [#3](https://github.com/epiphone/class-validator-jsonschema/pull/3)
+
 ## [1.1.1] - 2018-03-14
 ### Fixed
 - [@scboffspring](https://github.com/scboffspring) fixed schema properties being mutated by `_.merge` [#1](https://github.com/epiphone/class-validator-jsonschema/pull/1)
