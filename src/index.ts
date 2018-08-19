@@ -26,9 +26,11 @@ export function validationMetadatasToSchemas(
 
   const schemas: { [key: string]: SchemaObject } = _(metadatas)
     .groupBy('target.name')
-    .mapValues(schemaMetas => {
-      const target = schemaMetas[0].target as Function
-      const properties = _(schemaMetas)
+    .mapValues(ownMetas => {
+      const target = ownMetas[0].target as Function
+      const metas = ownMetas.concat(getInheritedMetadatas(target, metadatas))
+
+      const properties = _(metas)
         .groupBy('propertyName')
         .mapValues((propMetas, propKey) => {
           const schema = applyConverters(propMetas, options)
@@ -38,15 +40,40 @@ export function validationMetadatasToSchemas(
 
       const definitionSchema = {
         properties,
-        required: getRequiredPropNames(schemaMetas, options),
+        required: getRequiredPropNames(target, metas, options),
         type: 'object'
       }
 
-      return applyDecorators(definitionSchema, target.constructor, options)
+      return applyDecorators(definitionSchema, target, options, target.name)
     })
     .value()
 
   return schemas
+}
+
+/**
+ * Return target class' inherited validation metadatas, with original metadatas
+ * given precedence over inherited ones in case of duplicates.
+ *
+ * Adapted from `class-validator` source.
+ *
+ * @param target Target child class.
+ * @param metadatas All class-validator metadata objects.
+ */
+function getInheritedMetadatas(
+  target: Function,
+  metadatas: ValidationMetadata[]
+) {
+  return metadatas.filter(
+    d =>
+      d.target instanceof Function &&
+      target.prototype instanceof d.target &&
+      !_.find(metadatas, {
+        propertyName: d.propertyName,
+        target,
+        type: d.type
+      })
+  )
 }
 
 /**
@@ -80,7 +107,7 @@ function applyDecorators(
   schema: SchemaObject,
   target: Function,
   options: IOptions,
-  propertyName?: string
+  propertyName: string
 ): SchemaObject {
   const additionalSchema = getMetadataSchema(target.prototype, propertyName)
   return _.isFunction(additionalSchema)
@@ -90,22 +117,34 @@ function applyDecorators(
 
 /**
  * Get the required property names of a validated class.
+ * @param target Validation target class.
  * @param metadatas Validation metadata objects of the validated class.
+ * @param options Global class-validator options.
  */
 function getRequiredPropNames(
+  target: Function,
   metadatas: ValidationMetadata[],
   options: IOptions
 ) {
-  const optionalValidators = [
-    ValidationTypes.CONDITIONAL_VALIDATION,
-    ValidationTypes.IS_EMPTY
-  ]
+  function isDefined(metas: ValidationMetadata[]) {
+    return _.some(metas, { type: ValidationTypes.IS_DEFINED })
+  }
+  function isOptional(metas: ValidationMetadata[]) {
+    return _.some(metas, ({ type }) =>
+      _.includes(
+        [ValidationTypes.CONDITIONAL_VALIDATION, ValidationTypes.IS_EMPTY],
+        type
+      )
+    )
+  }
+
   return _(metadatas)
     .groupBy('propertyName')
-    .pickBy(d => {
+    .pickBy(metas => {
+      const [own, inherited] = _.partition(metas, d => d.target === target)
       return options.skipMissingProperties
-        ? _.some(d, { type: ValidationTypes.IS_DEFINED })
-        : !_.some(d, ({ type }) => _.includes(optionalValidators, type))
+        ? isDefined(own) || (!isOptional(own) && isDefined(inherited))
+        : !(isOptional(own) || isOptional(inherited))
     })
     .keys()
     .value()

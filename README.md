@@ -181,6 +181,10 @@ Results in the following schema:
 }
 ```
 
+`JSONSchema` decorators also flow down from parent classes into [inherited validation decorators](https://github.com/typestack/class-validator#inheriting-validation-decorators). Note though that if the inherited class uses `JSONSchema` to redecorate a property from the parent class, the parent class `JSONSchema` gets overwritten - i.e. there's no merging logic.
+
+#### Custom handlers
+
 Alternatively `JSONSchema` can take a function of type `(existingSchema: SchemaObject, options: IOptions) => SchemaObject`. The return value of this function is then **not** automatically merged into existing schema (i.e. the one derived from `class-validator` decorators). Instead you can handle merging yourself in whichever way is preferred, the idea being that removal of existing keywords and other more complex overwrite scenarios can be implemented here.
 
 ## Limitations
