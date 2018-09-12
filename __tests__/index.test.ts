@@ -93,7 +93,6 @@ describe('classValidatorConverter', () => {
             $ref: '#/definitions/User'
           }
         },
-        required: [],
         type: 'object'
       },
       User: {

@@ -88,12 +88,12 @@ describe('options', () => {
 
   it('handles required properties as per skipMissingProperties option', () => {
     expect(defaultSchemas.User.required).toEqual(['id', 'email'])
-    expect(defaultSchemas.Post.required).toEqual([])
+    expect(defaultSchemas.Post).not.toHaveProperty('required')
 
     const schemas = validationMetadatasToSchemas(metadata, {
       skipMissingProperties: true
     })
     expect(schemas.User.required).toEqual(['id'])
-    expect(schemas.Post.required).toEqual([])
+    expect(defaultSchemas.Post).not.toHaveProperty('required')
   })
 })

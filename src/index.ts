@@ -38,10 +38,14 @@ export function validationMetadatasToSchemas(
         })
         .value()
 
-      const definitionSchema = {
+      const definitionSchema: SchemaObject = {
         properties,
-        required: getRequiredPropNames(target, metas, options),
         type: 'object'
+      }
+
+      const required = getRequiredPropNames(target, metas, options)
+      if (required.length > 0) {
+        definitionSchema.required = required
       }
 
       return applyDecorators(definitionSchema, target, options, target.name)
