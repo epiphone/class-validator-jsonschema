@@ -25,7 +25,15 @@ export const defaultConverters: ISchemaConverters = {
   },
   [ValidationTypes.NESTED_VALIDATION]: (meta, options) => {
     if (_.isFunction(meta.target)) {
-      const childType = getPropType(meta.target.prototype, meta.propertyName)
+      const typeMeta = options.classTransformerMetadataStorage
+        ? options.classTransformerMetadataStorage.findTypeMetadata(
+            meta.target,
+            meta.propertyName
+          )
+        : null
+      const childType = typeMeta
+        ? typeMeta.typeFunction()
+        : getPropType(meta.target.prototype, meta.propertyName)
       return targetToSchema(childType, options)
     }
   },

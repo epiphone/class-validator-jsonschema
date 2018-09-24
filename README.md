@@ -187,6 +187,38 @@ Results in the following schema:
 
 Alternatively `JSONSchema` can take a function of type `(existingSchema: SchemaObject, options: IOptions) => SchemaObject`. The return value of this function is then **not** automatically merged into existing schema (i.e. the one derived from `class-validator` decorators). Instead you can handle merging yourself in whichever way is preferred, the idea being that removal of existing keywords and other more complex overwrite scenarios can be implemented here.
 
+### `@ValidateNested` and arrays
+
+`class-validator` supports validating nested objects via the [`@ValidateNested` decorator](https://github.com/typestack/class-validator#validating-nested-objects). Likewise JSON Schema generation is supported out-of-the-box for individual classes such as `@ValidateNested() user: UserClass`. However, due to [limitations in Typescript's reflection system](https://github.com/Microsoft/TypeScript/issues/10576), validation classes wrapped in a generic (e.g. `UserClass[]` or `Promise<UserClass>`</UserClass>) need to be explicitly defined with `class-transfomer`'s `@Type` decorator:
+
+```typescript
+import { Type } from 'class-transformer'
+import { defaultMetadataStorage } from 'class-transformer/storage'
+import { validationMetadatasToSchemas } from 'class-validator-jsonschema'
+
+class User {
+  @ValidateNested({ each: true })
+  @IsString({ each: true })
+  @Type(() => BlogPost)  // 1) Explicitly define the nested property type
+  blogPosts: BlogPost[]
+}
+
+export class BlogPost {
+  @IsString()
+  title: string
+
+  @IsString()
+  body: string
+}
+
+const schemas = validationMetadatasToSchemas(metadatas, {
+  classTransformerMetadataStorage: defaultMetadataStorage // 2) Define class-transformer metadata in options
+})
+```
+
+Note also how the `classTransformerMetadataStorage` option has to be defined for `@Type` decorator to take effect.
+
+
 ## Limitations
 
 There's no handling for `class-validator`s **validation groups** or **conditional decorator** (`@ValidateIf`) out-of-the-box. The above-mentioned extension methods can be used to fill the gaps if necessary.
