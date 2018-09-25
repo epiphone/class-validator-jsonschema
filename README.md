@@ -187,9 +187,26 @@ Results in the following schema:
 
 Alternatively `JSONSchema` can take a function of type `(existingSchema: SchemaObject, options: IOptions) => SchemaObject`. The return value of this function is then **not** automatically merged into existing schema (i.e. the one derived from `class-validator` decorators). Instead you can handle merging yourself in whichever way is preferred, the idea being that removal of existing keywords and other more complex overwrite scenarios can be implemented here.
 
-### `@ValidateNested` and arrays
+### @ValidateNested and arrays
 
-`class-validator` supports validating nested objects via the [`@ValidateNested` decorator](https://github.com/typestack/class-validator#validating-nested-objects). Likewise JSON Schema generation is supported out-of-the-box for individual classes such as `@ValidateNested() user: UserClass`. However, due to [limitations in Typescript's reflection system](https://github.com/Microsoft/TypeScript/issues/10576), validation classes wrapped in a generic (e.g. `UserClass[]` or `Promise<UserClass>`</UserClass>) need to be explicitly defined with `class-transfomer`'s `@Type` decorator:
+`class-validator` supports validating nested objects via the [`@ValidateNested` decorator](https://github.com/typestack/class-validator#validating-nested-objects). Likewise JSON Schema generation is supported out-of-the-box for nested properties such as
+
+```typescript
+@ValidateNested()
+user: UserClass
+```
+
+However, due to [limitations in Typescript's reflection system](https://github.com/Microsoft/TypeScript/issues/10576) we cannot infer the inner type of a generic class. In effect this means that properties like
+
+```typescript
+@ValidateNested({ each: true })
+users: UserClass[]
+
+@ValidateNested()
+user: Promise<UserClass>
+```
+
+would resolve to classes `Array` and `Promise` in JSON Schema. To work around this limitation we can use `@Type` from `class-transformer` to explicitly define the nested property's inner type:
 
 ```typescript
 import { Type } from 'class-transformer'
@@ -198,17 +215,8 @@ import { validationMetadatasToSchemas } from 'class-validator-jsonschema'
 
 class User {
   @ValidateNested({ each: true })
-  @IsString({ each: true })
   @Type(() => BlogPost)  // 1) Explicitly define the nested property type
   blogPosts: BlogPost[]
-}
-
-export class BlogPost {
-  @IsString()
-  title: string
-
-  @IsString()
-  body: string
 }
 
 const schemas = validationMetadatasToSchemas(metadatas, {
