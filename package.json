@@ -28,6 +28,7 @@
     "singleQuote": true
   },
   "dependencies": {
+    "class-transformer": "^0.1.9",
     "class-validator": "^0.7.3",
     "debug": "^3.1.0",
     "lodash": "^4.17.4",
