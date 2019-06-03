@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.2.1] - 2019-06-03
+### Fixed
+- Update dependencies to fix mismatch with `class-validator` and `class-tranformer` [#11](https://github.com/epiphone/class-validator-jsonschema/issues/11)
+
 ## [1.2.0] - 2018-09-25
 ### Added
 - Support `class-transfomer`'s `@Type` decorator for explicitly defining type of nested properties wrapped in a generic (e.g. `@ValidateNested({ each: true }) users: UserClass[]`) [#7](https://github.com/epiphone/class-validator-jsonschema/issues/7)
