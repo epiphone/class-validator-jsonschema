@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.3.0] - 2019-06-24
+### Fixed
+- Moved `class-transformer` and `class-validator` to peer dependencies [#11](https://github.com/epiphone/class-validator-jsonschema/issues/11)
+- Updated dependencies
+
 ## [1.2.1] - 2019-06-03
 ### Fixed
 - Update dependencies to fix mismatch with `class-validator` and `class-tranformer` [#11](https://github.com/epiphone/class-validator-jsonschema/issues/11)
