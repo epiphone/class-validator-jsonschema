@@ -111,10 +111,12 @@ export const defaultConverters: ISchemaConverters = {
   [ValidationTypes.IS_INT]: {
     type: 'integer'
   },
-  [ValidationTypes.IS_ENUM]: meta => ({
-    enum: Object.keys(meta.constraints[0]),
-    type: 'string'
-  }),
+  [ValidationTypes.IS_ENUM]: meta => {
+    return {
+      enum: Object.values(meta.constraints[0]),
+      type: 'string'
+    }
+  },
   [ValidationTypes.IS_DIVISIBLE_BY]: meta => ({
     multipleOf: meta.constraints[0],
     type: 'number'
