@@ -11,6 +11,10 @@ enum PostType {
   Public,
   Private
 }
+enum Role {
+  Anonymous = 'anonymous',
+  User = 'user'
+}
 
 // @ts-ignore: not referenced
 class User {
@@ -47,6 +51,7 @@ class User {
   @validator.IsInt() isInt: number
   @validator.IsArray() isArray: any[]
   @validator.IsEnum(PostType) isEnum: PostType
+  @validator.IsEnum(Role) isEnumWithValue: Role
 
   // Number validation decorators:
   @validator.IsDivisibleBy(4)
@@ -188,7 +193,8 @@ describe('defaultConverters', () => {
           isNumber: { type: 'number' },
           isInt: { type: 'integer' },
           isArray: { items: {}, type: 'array' },
-          isEnum: { type: 'string', enum: ['0', '1', 'Public', 'Private'] },
+          isEnum: { type: 'string', enum: ['Public', 'Private', 0, 1] },
+          isEnumWithValue: { type: 'string', enum: ['anonymous', 'user'] },
 
           isDivisibleByInt: { multipleOf: 4, type: 'number' },
           isDivisibleByFloat: { multipleOf: 1.1, type: 'number' },
