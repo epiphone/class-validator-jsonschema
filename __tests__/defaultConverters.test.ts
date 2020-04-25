@@ -101,7 +101,7 @@ class User {
   @validator.IsISO8601() isISO8601: string
   @validator.IsJSON() isJSON: string
   @validator.IsLowercase() isLowerCase: string
-  @validator.IsMobilePhone('en') isMobilePhone: string
+  @validator.IsMobilePhone('en-GB') isMobilePhone: string
   @validator.IsMongoId() isMongoId: string
   @validator.IsMultibyte() isMultibyte: string
   @validator.IsSurrogatePair() isSurrogatePair: string

@@ -1,13 +1,14 @@
 import {
   getFromContainer,
+  IS_STRING,
   IsDefined,
   IsEmail,
   IsOptional,
   IsString,
+  MAX_LENGTH,
   MaxLength,
   MetadataStorage,
-  ValidateNested,
-  ValidationTypes
+  ValidateNested
 } from 'class-validator'
 import * as _ from 'lodash'
 
@@ -43,7 +44,7 @@ describe('options', () => {
   })
 
   it('handles refPointerPrefix option', () => {
-    const schemas = validationMetadatasToSchemas(metadata, {
+    const schemas = validationMetadatasToSchemas({
       refPointerPrefix: '#/components/schema/'
     })
 
@@ -62,13 +63,13 @@ describe('options', () => {
       }
     })
 
-    const schemas = validationMetadatasToSchemas(metadata, {
+    const schemas = validationMetadatasToSchemas({
       additionalConverters: {
-        [ValidationTypes.IS_STRING]: {
+        [IS_STRING]: {
           description: 'A string value',
           type: 'string'
         },
-        [ValidationTypes.MAX_LENGTH]: meta => ({
+        [MAX_LENGTH]: meta => ({
           exclusiveMaximum: true,
           maxLength: meta.constraints[0] + 1,
           type: 'string'
@@ -90,7 +91,7 @@ describe('options', () => {
     expect(defaultSchemas.User.required).toEqual(['id', 'email'])
     expect(defaultSchemas.Post).not.toHaveProperty('required')
 
-    const schemas = validationMetadatasToSchemas(metadata, {
+    const schemas = validationMetadatasToSchemas({
       skipMissingProperties: true
     })
     expect(schemas.User.required).toEqual(['id'])

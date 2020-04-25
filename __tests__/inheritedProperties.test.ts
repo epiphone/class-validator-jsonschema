@@ -36,7 +36,7 @@ class BaseContent {
   password: string
 
   @IsDefined()
-  @IsMobilePhone('fi')
+  @IsMobilePhone('fi-FI')
   phone: string
 }
 
@@ -131,7 +131,7 @@ describe('Inheriting validation decorators', () => {
   })
 
   it('handles inherited IsDefined decorators when skipMissingProperties is enabled', () => {
-    const schemas = validationMetadatasToSchemas(metadatas, {
+    const schemas = validationMetadatasToSchemas({
       skipMissingProperties: true
     })
 

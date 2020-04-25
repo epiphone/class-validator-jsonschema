@@ -1,6 +1,6 @@
 // tslint:disable:no-submodule-imports
-import { ValidationTypes } from 'class-validator'
-import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata'
+import * as cv from 'class-validator'
+import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import * as _ from 'lodash'
 import { SchemaObject } from 'openapi3-ts'
 import 'reflect-metadata'
@@ -17,13 +17,13 @@ export type SchemaConverter = (
 ) => SchemaObject | void
 
 export const defaultConverters: ISchemaConverters = {
-  [ValidationTypes.CUSTOM_VALIDATION]: (meta, options) => {
+  [cv.ValidationTypes.CUSTOM_VALIDATION]: (meta, options) => {
     if (_.isFunction(meta.target)) {
       const type = getPropType(meta.target.prototype, meta.propertyName)
       return targetToSchema(type, options)
     }
   },
-  [ValidationTypes.NESTED_VALIDATION]: (meta, options) => {
+  [cv.ValidationTypes.NESTED_VALIDATION]: (meta, options) => {
     if (_.isFunction(meta.target)) {
       const typeMeta = options.classTransformerMetadataStorage
         ? options.classTransformerMetadataStorage.findTypeMetadata(
@@ -37,21 +37,21 @@ export const defaultConverters: ISchemaConverters = {
       return targetToSchema(childType, options)
     }
   },
-  [ValidationTypes.CONDITIONAL_VALIDATION]: {},
-  [ValidationTypes.IS_DEFINED]: {},
-  [ValidationTypes.EQUALS]: meta => {
+  [cv.ValidationTypes.CONDITIONAL_VALIDATION]: {},
+  [cv.ValidationTypes.IS_DEFINED]: {},
+  [cv.EQUALS]: meta => {
     const schema = constraintToSchema(meta.constraints[0])
     if (schema) {
       return { ...schema, enum: [meta.constraints[0]] }
     }
   },
-  [ValidationTypes.NOT_EQUALS]: meta => {
+  [cv.NOT_EQUALS]: meta => {
     const schema = constraintToSchema(meta.constraints[0])
     if (schema) {
       return { not: { ...schema, enum: [meta.constraints[0]] } }
     }
   },
-  [ValidationTypes.IS_EMPTY]: {
+  [cv.IS_EMPTY]: {
     anyOf: [
       { type: 'string', enum: [''] },
       {
@@ -69,238 +69,238 @@ export const defaultConverters: ISchemaConverters = {
       }
     ]
   },
-  [ValidationTypes.IS_NOT_EMPTY]: {
+  [cv.IS_NOT_EMPTY]: {
     minLength: 1,
     type: 'string'
   },
-  [ValidationTypes.IS_IN]: meta => {
+  [cv.IS_IN]: meta => {
     const [head, ...rest] = meta.constraints[0].map(constraintToSchema)
     if (head && _.every(rest, { type: head.type })) {
       return { ...head, enum: meta.constraints[0] }
     }
   },
-  [ValidationTypes.IS_NOT_IN]: meta => {
+  [cv.IS_NOT_IN]: meta => {
     const [head, ...rest] = meta.constraints[0].map(constraintToSchema)
     if (head && _.every(rest, { type: head.type })) {
       return { not: { ...head, enum: meta.constraints[0] } }
     }
   },
-  [ValidationTypes.IS_BOOLEAN]: {
+  [cv.IS_BOOLEAN]: {
     type: 'boolean'
   },
-  [ValidationTypes.IS_DATE]: {
+  [cv.IS_DATE]: {
     oneOf: [
       { format: 'date', type: 'string' },
       { format: 'date-time', type: 'string' }
     ]
   },
-  [ValidationTypes.IS_NUMBER]: {
+  [cv.IS_NUMBER]: {
     type: 'number'
   },
-  [ValidationTypes.IS_STRING]: {
+  [cv.IS_STRING]: {
     type: 'string'
   },
-  [ValidationTypes.IS_DATE_STRING]: {
+  [cv.IS_DATE_STRING]: {
     pattern: 'd{4}-[01]d-[0-3]dT[0-2]d:[0-5]d:[0-5]d.d+Z?',
     type: 'string'
   },
-  [ValidationTypes.IS_ARRAY]: {
+  [cv.IS_ARRAY]: {
     items: {},
     type: 'array'
   },
-  [ValidationTypes.IS_INT]: {
+  [cv.IS_INT]: {
     type: 'integer'
   },
-  [ValidationTypes.IS_ENUM]: meta => {
+  [cv.IS_ENUM]: meta => {
     return {
       enum: Object.values(meta.constraints[0]),
       type: 'string'
     }
   },
-  [ValidationTypes.IS_DIVISIBLE_BY]: meta => ({
+  [cv.IS_DIVISIBLE_BY]: meta => ({
     multipleOf: meta.constraints[0],
     type: 'number'
   }),
-  [ValidationTypes.IS_POSITIVE]: {
+  [cv.IS_POSITIVE]: {
     exclusiveMinimum: true,
     minimum: 0,
     type: 'number'
   },
-  [ValidationTypes.IS_NEGATIVE]: {
+  [cv.IS_NEGATIVE]: {
     exclusiveMaximum: true,
     maximum: 0,
     type: 'number'
   },
-  [ValidationTypes.MIN]: meta => ({
+  [cv.MIN]: meta => ({
     minimum: meta.constraints[0],
     type: 'number'
   }),
-  [ValidationTypes.MAX]: meta => ({
+  [cv.MAX]: meta => ({
     maximum: meta.constraints[0],
     type: 'number'
   }),
-  [ValidationTypes.MIN_DATE]: meta => ({
+  [cv.MIN_DATE]: meta => ({
     description: `After ${meta.constraints[0].toJSON()}`,
     oneOf: [
       { format: 'date', type: 'string' },
       { format: 'date-time', type: 'string' }
     ]
   }),
-  [ValidationTypes.MAX_DATE]: meta => ({
+  [cv.MAX_DATE]: meta => ({
     description: `Before ${meta.constraints[0].toJSON()}`,
     oneOf: [
       { format: 'date', type: 'string' },
       { format: 'date-time', type: 'string' }
     ]
   }),
-  [ValidationTypes.IS_BOOLEAN_STRING]: {
+  [cv.IS_BOOLEAN_STRING]: {
     enum: ['true', 'false'],
     type: 'string'
   },
-  [ValidationTypes.IS_NUMBER_STRING]: {
+  [cv.IS_NUMBER_STRING]: {
     pattern: '^[-+]?[0-9]+$',
     type: 'string'
   },
-  [ValidationTypes.CONTAINS]: meta => ({
+  [cv.CONTAINS]: meta => ({
     pattern: meta.constraints[0],
     type: 'string'
   }),
-  [ValidationTypes.NOT_CONTAINS]: meta => ({
+  [cv.NOT_CONTAINS]: meta => ({
     not: { pattern: meta.constraints[0] },
     type: 'string'
   }),
-  [ValidationTypes.IS_ALPHA]: {
+  [cv.IS_ALPHA]: {
     pattern: '^[a-zA-Z]+$',
     type: 'string'
   },
-  [ValidationTypes.IS_ALPHANUMERIC]: {
+  [cv.IS_ALPHANUMERIC]: {
     pattern: '^[0-9a-zA-Z]+$',
     type: 'string'
   },
-  [ValidationTypes.IS_ASCII]: {
+  [cv.IS_ASCII]: {
     pattern: '^[\\x00-\\x7F]+$',
     type: 'string'
   },
-  [ValidationTypes.IS_BASE64]: {
+  [cv.IS_BASE64]: {
     format: 'base64',
     type: 'string'
   },
-  [ValidationTypes.IS_BYTE_LENGTH]: {
+  [cv.IS_BYTE_LENGTH]: {
     type: 'string'
   },
-  [ValidationTypes.IS_CREDIT_CARD]: {
+  [cv.IS_CREDIT_CARD]: {
     format: 'credit-card',
     type: 'string'
   },
-  [ValidationTypes.IS_CURRENCY]: {
+  [cv.IS_CURRENCY]: {
     format: 'currency',
     type: 'string'
   },
-  [ValidationTypes.IS_EMAIL]: {
+  [cv.IS_EMAIL]: {
     format: 'email',
     type: 'string'
   },
-  [ValidationTypes.IS_FQDN]: {
+  [cv.IS_FQDN]: {
     format: 'hostname',
     type: 'string'
   },
-  [ValidationTypes.IS_FULL_WIDTH]: {
+  [cv.IS_FULL_WIDTH]: {
     pattern:
       '[^\\u0020-\\u007E\\uFF61-\\uFF9F\\uFFA0-\\uFFDC\\uFFE8-\\uFFEE0-9a-zA-Z]',
     type: 'string'
   },
-  [ValidationTypes.IS_HALF_WIDTH]: {
+  [cv.IS_HALF_WIDTH]: {
     pattern:
       '[\\u0020-\\u007E\\uFF61-\\uFF9F\\uFFA0-\\uFFDC\\uFFE8-\\uFFEE0-9a-zA-Z]',
     type: 'string'
   },
-  [ValidationTypes.IS_VARIABLE_WIDTH]: {
+  [cv.IS_VARIABLE_WIDTH]: {
     type: 'string'
   },
-  [ValidationTypes.IS_HEX_COLOR]: {
+  [cv.IS_HEX_COLOR]: {
     pattern: '^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$',
     type: 'string'
   },
-  [ValidationTypes.IS_HEXADECIMAL]: {
+  [cv.IS_HEXADECIMAL]: {
     pattern: '^[0-9a-fA-F]+$',
     type: 'string'
   },
-  [ValidationTypes.IS_IP]: meta => ({
+  [cv.IS_IP]: meta => ({
     format: 'ipv' + (meta.constraints[0] === '6' ? 6 : 4),
     type: 'string'
   }),
-  [ValidationTypes.IS_ISBN]: {
+  [cv.IS_ISBN]: {
     format: 'isbn',
     type: 'string'
   },
-  [ValidationTypes.IS_ISIN]: {
+  [cv.IS_ISIN]: {
     format: 'isin',
     type: 'string'
   },
-  [ValidationTypes.IS_ISO8601]: {
+  [cv.IS_ISO8601]: {
     oneOf: [
       { format: 'date', type: 'string' },
       { format: 'date-time', type: 'string' }
     ]
   },
-  [ValidationTypes.IS_JSON]: {
+  [cv.IS_JSON]: {
     format: 'json',
     type: 'string'
   },
-  [ValidationTypes.IS_LOWERCASE]: {
+  [cv.IS_LOWERCASE]: {
     type: 'string'
   },
-  [ValidationTypes.IS_MOBILE_PHONE]: {
+  [cv.IS_MOBILE_PHONE]: {
     format: 'mobile-phone',
     type: 'string'
   },
-  [ValidationTypes.IS_MONGO_ID]: {
+  [cv.IS_MONGO_ID]: {
     pattern: '^[0-9a-fA-F]{24}$',
     type: 'string'
   },
-  [ValidationTypes.IS_MULTIBYTE]: {
+  [cv.IS_MULTIBYTE]: {
     pattern: '[^\\x00-\\x7F]',
     type: 'string'
   },
-  [ValidationTypes.IS_SURROGATE_PAIR]: {
+  [cv.IS_SURROGATE_PAIR]: {
     pattern: '[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]',
     type: 'string'
   },
-  [ValidationTypes.IS_URL]: {
+  [cv.IS_URL]: {
     format: 'url',
     type: 'string'
   },
-  [ValidationTypes.IS_UUID]: {
+  [cv.IS_UUID]: {
     format: 'uuid',
     type: 'string'
   },
-  [ValidationTypes.LENGTH]: meta => {
+  [cv.LENGTH]: meta => {
     const [minLength, maxLength] = meta.constraints
     if (maxLength || maxLength === 0) {
       return { minLength, maxLength, type: 'string' }
     }
     return { minLength, type: 'string' }
   },
-  [ValidationTypes.IS_UPPERCASE]: {
+  [cv.IS_UPPERCASE]: {
     type: 'string'
   },
-  [ValidationTypes.MIN_LENGTH]: meta => ({
+  [cv.MIN_LENGTH]: meta => ({
     minLength: meta.constraints[0],
     type: 'string'
   }),
-  [ValidationTypes.MAX_LENGTH]: meta => ({
+  [cv.MAX_LENGTH]: meta => ({
     maxLength: meta.constraints[0],
     type: 'string'
   }),
-  [ValidationTypes.MATCHES]: meta => ({
+  [cv.MATCHES]: meta => ({
     pattern: meta.constraints[0].source,
     type: 'string'
   }),
-  [ValidationTypes.IS_MILITARY_TIME]: {
+  [cv.IS_MILITARY_TIME]: {
     pattern: '^([01]\\d|2[0-3]):?([0-5]\\d)$',
     type: 'string'
   },
-  [ValidationTypes.ARRAY_CONTAINS]: meta => {
+  [cv.ARRAY_CONTAINS]: meta => {
     const schemas = meta.constraints[0].map(constraintToSchema)
     if (schemas.length > 0 && _.every(schemas, 'type')) {
       return {
@@ -319,7 +319,7 @@ export const defaultConverters: ISchemaConverters = {
     }
     return { items: {}, type: 'array' }
   },
-  [ValidationTypes.ARRAY_NOT_CONTAINS]: meta => {
+  [cv.ARRAY_NOT_CONTAINS]: meta => {
     const schemas = meta.constraints[0].map(constraintToSchema)
     if (schemas.length > 0 && _.every(schemas, 'type')) {
       return {
@@ -336,22 +336,22 @@ export const defaultConverters: ISchemaConverters = {
     }
     return { items: {}, type: 'array' }
   },
-  [ValidationTypes.ARRAY_NOT_EMPTY]: {
+  [cv.ARRAY_NOT_EMPTY]: {
     items: {},
     minItems: 1,
     type: 'array'
   },
-  [ValidationTypes.ARRAY_MIN_SIZE]: meta => ({
+  [cv.ARRAY_MIN_SIZE]: meta => ({
     items: {},
     minItems: meta.constraints[0],
     type: 'array'
   }),
-  [ValidationTypes.ARRAY_MAX_SIZE]: meta => ({
+  [cv.ARRAY_MAX_SIZE]: meta => ({
     items: {},
     maxItems: meta.constraints[0],
     type: 'array'
   }),
-  [ValidationTypes.ARRAY_UNIQUE]: {
+  [cv.ARRAY_UNIQUE]: {
     items: {},
     type: 'array',
     uniqueItems: true
