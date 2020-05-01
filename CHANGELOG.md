@@ -6,6 +6,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.0-rc1] - 2020-05-01
+### Changed
+- Bump `class-validator` peer dependency to `^0.12.0` - meaning we're no longer compatible with pre-0.12 versions of `class-validator`!
+- `validationMetadatasToSchemas` no longer takes a `validationMetadatas` object as first argument. Instead the library now automatically grabs `validationMetadatas` from `getMetadataStorage()` under the hood.
+
+    This simplifies library usage from
+
+    ```typescript
+    const metadatas = (getFromContainer(MetadataStorage) as any).validationMetadatas
+    const schemas = validationMetadatasToSchemas(metadatas)
+    ```
+
+    into plain
+
+    ```typescript
+    const schemas = validationMetadatasToSchemas()
+    ```
+
+    You can still choose to override the default metadata storage using the optional options argument:
+
+    ```typescript
+    const schemas = validationMetadatasToSchemas({
+        classValidatorMetadataStorage: myCustomMetadataStorage
+    })
+    ```
+
 ## [1.3.1] - 2019-12-05
 ### Fixed
 - The default enum converter uses `Object.values` instead of `Object.key` to support named values such as `enum SomeEnum { Key = 'value' }` (thanks [@DimalT](https://github.com/DimaIT) at [#23](https://github.com/epiphone/class-validator-jsonschema/issues/23))

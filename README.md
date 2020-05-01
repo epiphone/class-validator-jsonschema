@@ -8,6 +8,10 @@ Convert [class-validator](https://github.com/typestack/class-validator)-decorate
 
 `yarn add class-validator-jsonschema`
 
+Note that the library is **only compatible with `class-validator` versions 0.12 or higher**!
+
+Try installing `class-validator-jsonschema@1.3.1` in case you're stuck with an older `class-validator` version.
+
 ## Usage
 
 ```typescript
@@ -49,7 +53,7 @@ which prints out:
 }
 ```
 
-`validationMetadatasToSchemas` takes an `options` object as an optional second parameter. Check available configuration objects and defaults at [`options.ts`](src/options.ts).
+`validationMetadatasToSchemas` takes an `options` object as an optional parameter. Check available configuration objects and defaults at [`options.ts`](src/options.ts).
 
 ### Adding and overriding default converters
 
@@ -227,7 +231,7 @@ Note also how the `classTransformerMetadataStorage` option has to be defined for
 
 ### Using a custom validation metadataStorage
 
-Under the hood we fetch validation metadata from the default storage returned by `class-validator`'s `getMetadataStorage()`. In case of a version clash or something you might want to manually pass in the storage:
+Under the hood we grab validation metadata from the default storage returned by `class-validator`'s `getMetadataStorage()`. In case of a version clash or something you might want to manually pass in the storage:
 
 ```typescript
 const schemas = validationMetadatasToSchemas({
