@@ -17,7 +17,7 @@ export { JSONSchema } from './decorators'
 export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
   const options: IOptions = {
     ...defaultOptions,
-    ...userOptions
+    ...userOptions,
   }
 
   const metadatas = getMetadatasFromStorage(
@@ -26,7 +26,7 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
 
   const schemas: { [key: string]: SchemaObject } = _(metadatas)
     .groupBy('target.name')
-    .mapValues(ownMetas => {
+    .mapValues((ownMetas) => {
       const target = ownMetas[0].target as Function
       const metas = ownMetas.concat(getInheritedMetadatas(target, metadatas))
 
@@ -40,7 +40,7 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
 
       const definitionSchema: SchemaObject = {
         properties,
-        type: 'object'
+        type: 'object',
       }
 
       const required = getRequiredPropNames(target, metas, options)
@@ -69,7 +69,9 @@ function getMetadatasFromStorage(
 
   for (const meta of metadatas) {
     if (meta.constraintCls) {
-      const constraint = constraints.find(c => c.target === meta.constraintCls)
+      const constraint = constraints.find(
+        (c) => c.target === meta.constraintCls
+      )
       if (constraint) {
         meta.type = constraint.name
       }
@@ -93,13 +95,13 @@ function getInheritedMetadatas(
   metadatas: ValidationMetadata[]
 ) {
   return metadatas.filter(
-    d =>
+    (d) =>
       d.target instanceof Function &&
       target.prototype instanceof d.target &&
       !_.find(metadatas, {
         propertyName: d.propertyName,
         target,
-        type: d.type
+        type: d.type,
       })
   )
 }
@@ -162,8 +164,8 @@ function getRequiredPropNames(
 
   return _(metadatas)
     .groupBy('propertyName')
-    .pickBy(metas => {
-      const [own, inherited] = _.partition(metas, d => d.target === target)
+    .pickBy((metas) => {
+      const [own, inherited] = _.partition(metas, (d) => d.target === target)
       return options.skipMissingProperties
         ? isDefined(own) || (!isOptional(own) && isDefined(inherited))
         : !(isOptional(own) || isOptional(inherited))

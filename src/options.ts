@@ -2,7 +2,7 @@ import { MetadataStorage as ClassTransformerMetadataStorage } from 'class-transf
 import {
   getMetadataStorage,
   MetadataStorage,
-  ValidatorOptions
+  ValidatorOptions,
 } from 'class-validator'
 
 import { ISchemaConverters } from './defaultConverters'
@@ -39,5 +39,5 @@ export interface IOptions extends ValidatorOptions {
 export const defaultOptions: IOptions = {
   additionalConverters: {},
   classValidatorMetadataStorage: getMetadataStorage(),
-  refPointerPrefix: '#/definitions/'
+  refPointerPrefix: '#/definitions/',
 }
