@@ -116,13 +116,11 @@ function applyConverters(
   const converters = { ...defaultConverters, ...options.additionalConverters }
 
   const convert = (meta: ValidationMetadata) => {
-    const typeMeta = options.classTransformerMetadataStorage
-      ? options.classTransformerMetadataStorage.findTypeMetadata(
-          meta.target as Function,
-          meta.propertyName
-        )
-      : null
-    const isMap = typeMeta ? new typeMeta.reflectedType() instanceof Map : false
+    const typeMeta = options.classTransformerMetadataStorage?.findTypeMetadata(
+      meta.target as Function,
+      meta.propertyName
+    )
+    const isMap = typeMeta && new typeMeta.reflectedType() instanceof Map
 
     const converter =
       converters[meta.type] || converters[cv.ValidationTypes.CUSTOM_VALIDATION]
