@@ -1,4 +1,5 @@
 # class-validator-jsonschema
+
 [![Build Status](https://travis-ci.org/epiphone/class-validator-jsonschema.svg?branch=master)](https://travis-ci.org/epiphone/class-validator-jsonschema) [![codecov](https://codecov.io/gh/epiphone/class-validator-jsonschema/branch/master/graph/badge.svg)](https://codecov.io/gh/epiphone/class-validator-jsonschema) [![npm version](https://badge.fury.io/js/class-validator-jsonschema.svg)](https://badge.fury.io/js/class-validator-jsonschema)
 
 Convert [class-validator](https://github.com/typestack/class-validator)-decorated classes into OpenAPI-compatible JSON Schema. The aim is to provide a best-effort conversion: since some of the `class-validator` decorators lack a direct JSON Schema counterpart, the conversion is bound to be somewhat opinionated. To account for this multiple extension points are available.
@@ -7,10 +8,14 @@ Convert [class-validator](https://github.com/typestack/class-validator)-decorate
 
 `yarn add class-validator-jsonschema`
 
+Note that the library is **only compatible with `class-validator` versions 0.12 or higher**!
+
+Try installing `class-validator-jsonschema@1.3.1` in case you're stuck with an older `class-validator` version.
+
 ## Usage
 
 ```typescript
-import { getFromContainer, IsOptional, IsString, MaxLength, MetadataStorage } from 'class-validator'
+import { IsOptional, IsString, MaxLength } from 'class-validator'
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema'
 
 class BlogPost {
@@ -21,8 +26,7 @@ class BlogPost {
   tags: string[]
 }
 
-const metadatas = (getFromContainer(MetadataStorage) as any).validationMetadatas
-const schemas = validationMetadatasToSchemas(metadatas)
+const schemas = validationMetadatasToSchemas()
 console.log(schemas)
 ```
 
@@ -43,15 +47,13 @@ which prints out:
         "type": "array"
       }
     },
-    "required": [
-      "id"
-    ],
+    "required": ["id"],
     "type": "object"
   }
 }
 ```
 
-`validationMetadatasToSchemas` takes an `options` object as an optional second parameter. Check available configuration objects and defaults at [`options.ts`](src/options.ts).
+`validationMetadatasToSchemas` takes an `options` object as an optional parameter. Check available configuration objects and defaults at [`options.ts`](src/options.ts).
 
 ### Adding and overriding default converters
 
@@ -62,7 +64,7 @@ import { ValidationTypes } from 'class-validator'
 
 // ...
 
-const schemas = validationMetadatasToSchemas(metadatas, {
+const schemas = validationMetadatasToSchemas({
   additionalConverters: {
     [ValidationTypes.IS_STRING]: {
       description: 'A string value',
@@ -81,7 +83,7 @@ which now outputs:
       "id": {
         "description": "A string value",
         "type": "string"
-      },
+      }
       // ...
     }
   }
@@ -91,7 +93,10 @@ which now outputs:
 An additional converter can also be supplied in form of a function that receives the validation metadata item and global options, outputting a JSON Schema property object (see below for usage):
 
 ```typescript
-type SchemaConverter = (meta: ValidationMetadata, options: IOptions) => SchemaObject | void
+type SchemaConverter = (
+  meta: ValidationMetadata,
+  options: IOptions
+) => SchemaObject | void
 ```
 
 ### Custom validation classes
@@ -99,7 +104,12 @@ type SchemaConverter = (meta: ValidationMetadata, options: IOptions) => SchemaOb
 `class-validator` allows you to define [custom validation classes](https://github.com/typestack/class-validator#custom-validation-classes). You might for example validate that a string's length is between given two values:
 
 ```typescript
-import { Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator'
+import {
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface
+} from 'class-validator'
 
 // Implementing the validator:
 
@@ -119,25 +129,18 @@ class Post {
 }
 ```
 
-Now to handle your custom validator's JSON Schema conversion include a `customValidation` converter in `options.additionalConverters`:
+Now to handle your custom validator's JSON Schema conversion include a `CustomTextLength` converter in `options.additionalConverters`:
 
 ```typescript
-const schemas = validationMetadatasToSchemas(
-  validationMetadatas,
-  {
-    additionalConverters: {
-      [ValidationTypes.CUSTOM_VALIDATION]: meta => {
-        if (meta.constraintCls === CustomTextLength) {
-          return {
-            maxLength: meta.constraints[1],
-            minLength: meta.constraints[0],
-            type: 'string'
-          }
-        }
-      }
-    }
+const schemas = validationMetadatasToSchemas({
+  additionalConverters: {
+    CustomTextLength: meta => ({
+      maxLength: meta.constraints[1],
+      minLength: meta.constraints[0],
+      type: 'string'
+    })
   }
-)
+})
 ```
 
 ### Decorating with additional properties
@@ -215,17 +218,26 @@ import { validationMetadatasToSchemas } from 'class-validator-jsonschema'
 
 class User {
   @ValidateNested({ each: true })
-  @Type(() => BlogPost)  // 1) Explicitly define the nested property type
+  @Type(() => BlogPost) // 1) Explicitly define the nested property type
   blogPosts: BlogPost[]
 }
 
-const schemas = validationMetadatasToSchemas(metadatas, {
+const schemas = validationMetadatasToSchemas({
   classTransformerMetadataStorage: defaultMetadataStorage // 2) Define class-transformer metadata in options
 })
 ```
 
 Note also how the `classTransformerMetadataStorage` option has to be defined for `@Type` decorator to take effect.
 
+### Using a custom validation metadataStorage
+
+Under the hood we grab validation metadata from the default storage returned by `class-validator`'s `getMetadataStorage()`. In case of a version clash or something you might want to manually pass in the storage:
+
+```typescript
+const schemas = validationMetadatasToSchemas({
+  classValidatorMetadataStorage: myCustomMetadataStorage
+})
+```
 
 ## Limitations
 

@@ -1,9 +1,9 @@
 // tslint:disable:no-submodule-imports ban-types
-import { ValidationTypes } from 'class-validator'
-import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata'
+import * as cv from 'class-validator'
+import { ConstraintMetadata } from 'class-validator/types/metadata/ConstraintMetadata'
+import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import * as _ from 'lodash'
 import { SchemaObject } from 'openapi3-ts'
-const debug = require('debug')('routing-controllers-openapi')
 
 import { getMetadataSchema } from './decorators'
 import { defaultConverters } from './defaultConverters'
@@ -12,21 +12,21 @@ import { defaultOptions, IOptions } from './options'
 export { JSONSchema } from './decorators'
 
 /**
- * Convert class-validator metadata objects into JSON Schema definitions.
- * @param metadatas All class-validator metadata objects.
+ * Convert class-validator metadata into JSON Schema definitions.
  */
-export function validationMetadatasToSchemas(
-  metadatas: ValidationMetadata[],
-  userOptions?: Partial<IOptions>
-) {
+export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
   const options: IOptions = {
     ...defaultOptions,
-    ...userOptions
+    ...userOptions,
   }
+
+  const metadatas = getMetadatasFromStorage(
+    options.classValidatorMetadataStorage
+  )
 
   const schemas: { [key: string]: SchemaObject } = _(metadatas)
     .groupBy('target.name')
-    .mapValues(ownMetas => {
+    .mapValues((ownMetas) => {
       const target = ownMetas[0].target as Function
       const metas = ownMetas.concat(getInheritedMetadatas(target, metadatas))
 
@@ -40,7 +40,7 @@ export function validationMetadatasToSchemas(
 
       const definitionSchema: SchemaObject = {
         properties,
-        type: 'object'
+        type: 'object',
       }
 
       const required = getRequiredPropNames(target, metas, options)
@@ -53,6 +53,32 @@ export function validationMetadatasToSchemas(
     .value()
 
   return schemas
+}
+
+/**
+ * Return `storage.validationMetadatas` populated with `constraintMetadatas`.
+ */
+function getMetadatasFromStorage(
+  storage: cv.MetadataStorage
+): ValidationMetadata[] {
+  const metadatas: ValidationMetadata[] = _.get(storage, 'validationMetadatas')
+  const constraints: ConstraintMetadata[] = _.get(
+    storage,
+    'constraintMetadatas'
+  )
+
+  for (const meta of metadatas) {
+    if (meta.constraintCls) {
+      const constraint = constraints.find(
+        (c) => c.target === meta.constraintCls
+      )
+      if (constraint) {
+        meta.type = constraint.name
+      }
+    }
+  }
+
+  return metadatas
 }
 
 /**
@@ -69,13 +95,13 @@ function getInheritedMetadatas(
   metadatas: ValidationMetadata[]
 ) {
   return metadatas.filter(
-    d =>
+    (d) =>
       d.target instanceof Function &&
       target.prototype instanceof d.target &&
       !_.find(metadatas, {
         propertyName: d.propertyName,
         target,
-        type: d.type
+        type: d.type,
       })
   )
 }
@@ -89,11 +115,8 @@ function applyConverters(
 ): SchemaObject {
   const converters = { ...defaultConverters, ...options.additionalConverters }
   const convert = (meta: ValidationMetadata) => {
-    const converter = converters[meta.type]
-    if (!converter) {
-      debug('No schema converter found for validation metadata', meta)
-      return {}
-    }
+    const converter =
+      converters[meta.type] || converters[cv.ValidationTypes.CUSTOM_VALIDATION]
 
     const items = _.isFunction(converter) ? converter(meta, options) : converter
     return meta.each ? { items, type: 'array' } : items
@@ -131,21 +154,18 @@ function getRequiredPropNames(
   options: IOptions
 ) {
   function isDefined(metas: ValidationMetadata[]) {
-    return _.some(metas, { type: ValidationTypes.IS_DEFINED })
+    return _.some(metas, { type: cv.ValidationTypes.IS_DEFINED })
   }
   function isOptional(metas: ValidationMetadata[]) {
     return _.some(metas, ({ type }) =>
-      _.includes(
-        [ValidationTypes.CONDITIONAL_VALIDATION, ValidationTypes.IS_EMPTY],
-        type
-      )
+      _.includes([cv.ValidationTypes.CONDITIONAL_VALIDATION, cv.IS_EMPTY], type)
     )
   }
 
   return _(metadatas)
     .groupBy('propertyName')
-    .pickBy(metas => {
-      const [own, inherited] = _.partition(metas, d => d.target === target)
+    .pickBy((metas) => {
+      const [own, inherited] = _.partition(metas, (d) => d.target === target)
       return options.skipMissingProperties
         ? isDefined(own) || (!isOptional(own) && isDefined(inherited))
         : !(isOptional(own) || isOptional(inherited))

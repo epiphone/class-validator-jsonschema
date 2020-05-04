@@ -2,18 +2,16 @@
 import {
   ArrayMaxSize,
   ArrayNotContains,
-  getFromContainer,
   IsBoolean,
   IsEmpty,
   IsOptional,
   IsString,
   Length,
   MaxLength,
-  MetadataStorage,
   MinLength,
   ValidateNested
 } from 'class-validator'
-import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata'
+import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import * as _ from 'lodash'
 
 import { validationMetadatasToSchemas } from '../src'
@@ -50,10 +48,19 @@ class Post {
 
 describe('classValidatorConverter', () => {
   it('handles empty metadata', () => {
-    expect(validationMetadatasToSchemas([])).toEqual({})
+    const emptyStorage: any = {
+      constraintMetadatas: [],
+      validationMetadatas: []
+    }
+
+    expect(
+      validationMetadatasToSchemas({
+        classValidatorMetadataStorage: emptyStorage
+      })
+    ).toEqual({})
   })
 
-  it('returns empty schema object when no converter found', () => {
+  it('derives schema from property type when no converter is found', () => {
     const customMetadata: ValidationMetadata = {
       always: false,
       constraintCls: () => undefined,
@@ -66,17 +73,19 @@ describe('classValidatorConverter', () => {
       type: 'NON_EXISTENT_METADATA_TYPE',
       validationTypeOptions: {}
     }
+    const storage: any = {
+      constraintMetadatas: [],
+      validationMetadatas: [customMetadata]
+    }
 
-    const schemas = validationMetadatasToSchemas([customMetadata])
-    expect(schemas.User.properties!.id).toEqual({})
+    const schemas = validationMetadatasToSchemas({
+      classValidatorMetadataStorage: storage
+    })
+    expect(schemas.User.properties!.id).toEqual({ type: 'string' })
   })
 
   it('combines converted class-validator metadata into JSON Schemas', () => {
-    const metadata = _.get(
-      getFromContainer(MetadataStorage),
-      'validationMetadatas'
-    )
-    const schemas = validationMetadatasToSchemas(metadata)
+    const schemas = validationMetadatasToSchemas()
 
     expect(schemas).toEqual({
       Post: {

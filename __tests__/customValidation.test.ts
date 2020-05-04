@@ -1,6 +1,5 @@
 import {
-  getFromContainer,
-  MetadataStorage,
+  getMetadataStorage,
   Validate,
   ValidationArguments,
   ValidatorConstraint,
@@ -33,11 +32,11 @@ class InvalidPost {
   titleBoolean: boolean
 }
 
-const metadata = _.get(getFromContainer(MetadataStorage), 'validationMetadatas')
-
 describe('custom validation classes', () => {
   it('uses property type if no additional converter is supplied', () => {
-    const schemas = validationMetadatasToSchemas(metadata)
+    const schemas = validationMetadatasToSchemas({
+      classValidatorMetadataStorage: getMetadataStorage()
+    })
     expect(schemas.Post).toEqual({
       properties: {
         title: { type: 'string' }
@@ -57,18 +56,13 @@ describe('custom validation classes', () => {
   })
 
   it('uses additionalConverter to generate schema when supplied', () => {
-    const schemas = validationMetadatasToSchemas(metadata, {
+    const schemas = validationMetadatasToSchemas({
       additionalConverters: {
-        customValidation: meta => {
-          if (meta.constraintCls === CustomTextLength) {
-            return {
-              maxLength: meta.constraints[1] - 1,
-              minLength: meta.constraints[0] + 1,
-              type: 'string'
-            }
-          }
-          return {}
-        }
+        CustomTextLength: meta => ({
+          maxLength: meta.constraints[1] - 1,
+          minLength: meta.constraints[0] + 1,
+          type: 'string'
+        })
       }
     })
 

@@ -38,7 +38,7 @@ describe('class-transformer compatibility', () => {
   it('ignores @Type decorator when classTransformerMetadataStorage option is not defined', () => {
     // @ts-ignore
     const metadata = getFromContainer(MetadataStorage).validationMetadatas
-    const schemas = validationMetadatasToSchemas(metadata, {})
+    const schemas = validationMetadatasToSchemas()
 
     expect(schemas.ValidationErrorModel).toEqual({
       properties: {
@@ -67,7 +67,7 @@ describe('class-transformer compatibility', () => {
   it('applies @Type decorator when classTransformerMetadataStorage option is defined', () => {
     // @ts-ignore
     const metadata = getFromContainer(MetadataStorage).validationMetadatas
-    const schemas = validationMetadatasToSchemas(metadata, {
+    const schemas = validationMetadatasToSchemas({
       classTransformerMetadataStorage: defaultMetadataStorage
     })
 
