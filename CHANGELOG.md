@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.0] - 2020-05-04
+### Changed
+- Same as v2.0.0-rc1
+
 ## [2.0.0-rc1] - 2020-05-01
 ### Changed
 - Bump `class-validator` peer dependency to `^0.12.0` - meaning we're no longer compatible with pre-0.12 versions of `class-validator`!
