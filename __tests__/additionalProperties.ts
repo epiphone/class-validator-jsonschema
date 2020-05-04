@@ -11,14 +11,10 @@ class User {
 
 // @ts-ignore: not referenced
 class Post {
-  // @ts-ignore
-  @ValidateNested({each: true})
-  // @Matches(/w{10}/, {each: true})
   @Type(() => {
     return String
   })
   @MinLength(2, {each: true})
-    // users: User[]
   userStatus: Map<string, string>
 }
 
