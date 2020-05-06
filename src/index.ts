@@ -67,18 +67,18 @@ function getMetadatasFromStorage(
     'constraintMetadatas'
   )
 
-  for (const meta of metadatas) {
+  return metadatas.map((meta) => {
     if (meta.constraintCls) {
       const constraint = constraints.find(
         (c) => c.target === meta.constraintCls
       )
       if (constraint) {
-        meta.type = constraint.name
+        return { ...meta, type: constraint.name }
       }
     }
-  }
 
-  return metadatas
+    return meta
+  })
 }
 
 /**
