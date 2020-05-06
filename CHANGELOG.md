@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.1] - 2020-05-06
+### Fixed
+- Fix metadata object mutation breaking validation in routing-controllers [#36](https://github.com/epiphone/class-validator-jsonschema/issues/36)
+
 ## [2.0.0] - 2020-05-04
 ### Changed
 - Same as v2.0.0-rc1
