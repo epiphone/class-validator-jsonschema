@@ -128,7 +128,6 @@ function applyConverters(
     const items = _.isFunction(converter) ? converter(meta, options) : converter
 
     if (meta.each && isMap) {
-      // @ts-ignore
       return {
         additionalProperties: {
           ...items,
