@@ -114,11 +114,27 @@ function applyConverters(
   options: IOptions
 ): SchemaObject {
   const converters = { ...defaultConverters, ...options.additionalConverters }
+
   const convert = (meta: ValidationMetadata) => {
+    const typeMeta = options.classTransformerMetadataStorage?.findTypeMetadata(
+      meta.target as Function,
+      meta.propertyName
+    )
+    const isMap = typeMeta && new typeMeta.reflectedType() instanceof Map
+
     const converter =
       converters[meta.type] || converters[cv.ValidationTypes.CUSTOM_VALIDATION]
 
     const items = _.isFunction(converter) ? converter(meta, options) : converter
+
+    if (meta.each && isMap) {
+      return {
+        additionalProperties: {
+          ...items,
+        },
+        type: 'object',
+      }
+    }
     return meta.each ? { items, type: 'array' } : items
   }
 
