@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.3] - 2020-08-01
+### Fixed
+- Handle undefined `typeMeta.reflectedType` in Map type resolution [#45](https://github.com/epiphone/class-validator-jsonschema/pull/45)
+
 ## [2.0.2] - 2020-06-03
 ### Fixed
 - Handling for Map fields [#35](https://github.com/epiphone/class-validator-jsonschema/pull/35)
