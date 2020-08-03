@@ -120,7 +120,10 @@ function applyConverters(
       meta.target as Function,
       meta.propertyName
     )
-    const isMap = typeMeta && typeMeta.reflectedType && new typeMeta.reflectedType() instanceof Map
+    const isMap =
+      typeMeta &&
+      typeMeta.reflectedType &&
+      new typeMeta.reflectedType() instanceof Map
 
     const converter =
       converters[meta.type] || converters[cv.ValidationTypes.CUSTOM_VALIDATION]
