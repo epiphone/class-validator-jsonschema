@@ -30,29 +30,58 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
       const target = ownMetas[0].target as Function
       const metas = ownMetas.concat(getInheritedMetadatas(target, metadatas))
 
-      const properties = _(metas)
-        .groupBy('propertyName')
-        .mapValues((propMetas, propKey) => {
-          const schema = applyConverters(propMetas, options)
-          return applyDecorators(schema, target, options, propKey)
-        })
-        .value()
-
-      const definitionSchema: SchemaObject = {
-        properties,
-        type: 'object',
-      }
-
-      const required = getRequiredPropNames(target, metas, options)
-      if (required.length > 0) {
-        definitionSchema.required = required
-      }
-
-      return applyDecorators(definitionSchema, target, options, target.name)
+      return buildJsonSchemaForSpecificTarget(metadatas, target, metas, options)
     })
     .value()
 
   return schemas
+}
+
+/**
+ * Convert class-validator class into JSON Schema definition.
+ */
+export type ClassType<T> = new (...args: any[]) => T;
+
+function buildJsonSchemaForSpecificTarget<T>( metadatas: ValidationMetadata[], target: ClassType<T> | Function, targetMetadatas: ValidationMetadata[], options: IOptions) {
+  const metas = targetMetadatas.concat(getInheritedMetadatas(target, metadatas))
+
+  const properties = _(metas)
+    .groupBy('propertyName')
+    .mapValues((propMetas, propKey) => {
+      const schema = applyConverters(propMetas, options)
+      return applyDecorators(schema, target, options, propKey)
+    })
+    .value()
+
+  const definitionSchema: SchemaObject = {
+    properties,
+    type: 'object'
+  }
+
+  const required = getRequiredPropNames(target, metas, options)
+  if (required.length > 0) {
+    definitionSchema.required = required
+  }
+
+  return applyDecorators(definitionSchema, target, options, target.name)
+}
+
+export function classValidatorToJsonSchema<T extends object>( target: ClassType<T>, userOptions?: Partial<IOptions>) {
+  const options: IOptions = {
+    ...defaultOptions,
+    ...userOptions,
+  }
+
+  const metadatas = getMetadatasFromStorage(
+    options.classValidatorMetadataStorage
+  )
+
+  const targetMetadatas = _(metadatas)
+    .filter(metadata => {
+      return metadata.target === target
+    }).value();
+
+  return buildJsonSchemaForSpecificTarget(metadatas, target, targetMetadatas, options)
 }
 
 /**
