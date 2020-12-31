@@ -284,6 +284,13 @@ export const defaultConverters: ISchemaConverters = {
   [cv.IS_UPPERCASE]: {
     type: 'string',
   },
+  [cv.IS_OBJECT]: {
+    type: 'object',
+  },
+  [cv.IS_NOT_EMPTY_OBJECT]: {
+    type: 'object',
+    minProperties: 1,
+  },
   [cv.MIN_LENGTH]: (meta) => ({
     minLength: meta.constraints[0],
     type: 'string',

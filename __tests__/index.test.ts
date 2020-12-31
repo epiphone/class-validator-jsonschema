@@ -4,6 +4,8 @@ import {
   ArrayNotContains,
   IsBoolean,
   IsEmpty,
+  IsNotEmptyObject,
+  IsObject,
   IsOptional,
   IsString,
   Length,
@@ -12,8 +14,6 @@ import {
   ValidateNested,
 } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
-import * as _ from 'lodash'
-
 import { validationMetadatasToSchemas } from '../src'
 
 class User {
@@ -29,6 +29,12 @@ class User {
   tags: string[]
 
   @IsEmpty() empty: string
+
+  @IsObject() object: object
+
+  @IsNotEmptyObject()
+  @IsOptional()
+  nonEmptyObject: {}
 }
 
 // @ts-ignore: not referenced
@@ -126,6 +132,8 @@ describe('classValidatorConverter', () => {
           },
           firstName: { minLength: 5, type: 'string' },
           id: { type: 'string' },
+          object: { type: 'object' },
+          nonEmptyObject: { type: 'object', minProperties: 1 },
           tags: {
             items: {
               maxLength: 20,
@@ -138,7 +146,7 @@ describe('classValidatorConverter', () => {
             type: 'array',
           },
         },
-        required: ['id', 'firstName'],
+        required: ['id', 'firstName', 'object'],
         type: 'object',
       },
     })
