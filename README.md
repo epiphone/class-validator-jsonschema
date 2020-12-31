@@ -1,6 +1,6 @@
 # class-validator-jsonschema
 
-[![Build Status](https://travis-ci.org/epiphone/class-validator-jsonschema.svg?branch=master)](https://travis-ci.org/epiphone/class-validator-jsonschema) [![codecov](https://codecov.io/gh/epiphone/class-validator-jsonschema/branch/master/graph/badge.svg)](https://codecov.io/gh/epiphone/class-validator-jsonschema) [![npm version](https://badge.fury.io/js/class-validator-jsonschema.svg)](https://badge.fury.io/js/class-validator-jsonschema)
+![CI status](https://github.com/epiphone/class-validator-jsonschema/workflows/.github/workflows/test.yml/badge.svg?branch=master) [![codecov](https://codecov.io/gh/epiphone/class-validator-jsonschema/branch/master/graph/badge.svg)](https://codecov.io/gh/epiphone/class-validator-jsonschema) [![npm version](https://badge.fury.io/js/class-validator-jsonschema.svg)](https://badge.fury.io/js/class-validator-jsonschema)
 
 Convert [class-validator](https://github.com/typestack/class-validator)-decorated classes into OpenAPI-compatible JSON Schema. The aim is to provide a best-effort conversion: since some of the `class-validator` decorators lack a direct JSON Schema counterpart, the conversion is bound to be somewhat opinionated. To account for this multiple extension points are available.
 
