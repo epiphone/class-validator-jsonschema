@@ -56,7 +56,10 @@ describe('options', () => {
   it('overwrites default converters with additionalConverters', () => {
     expect(defaultSchemas.User.properties).toEqual({
       email: { format: 'email', type: 'string' },
-      id: { type: 'string' },
+      id: {
+        type: 'string',
+        not: { type: 'null' },
+      },
       tags: {
         items: { type: 'string', maxLength: 20 },
         type: 'array',
@@ -79,7 +82,11 @@ describe('options', () => {
 
     expect(schemas.User.properties).toEqual({
       email: { format: 'email', type: 'string' },
-      id: { description: 'A string value', type: 'string' },
+      id: {
+        description: 'A string value',
+        type: 'string',
+        not: { type: 'null' },
+      },
       tags: {
         items: { exclusiveMaximum: true, type: 'string', maxLength: 21 },
         type: 'array',

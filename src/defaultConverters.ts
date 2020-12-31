@@ -39,7 +39,9 @@ export const defaultConverters: ISchemaConverters = {
   },
   [cv.ValidationTypes.WHITELIST]: {},
   [cv.ValidationTypes.CONDITIONAL_VALIDATION]: {},
-  [cv.ValidationTypes.IS_DEFINED]: {},
+  [cv.ValidationTypes.IS_DEFINED]: {
+    not: { type: 'null' },
+  },
   [cv.EQUALS]: (meta) => {
     const schema = constraintToSchema(meta.constraints[0])
     if (schema) {

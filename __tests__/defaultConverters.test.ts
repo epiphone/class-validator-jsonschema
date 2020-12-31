@@ -150,7 +150,7 @@ describe('defaultConverters', () => {
     expect(schemas).toEqual({
       User: {
         properties: {
-          isDefined: {},
+          isDefined: { not: { type: 'null' } },
           equalsString: { type: 'string', enum: ['x'] },
           equalsNumber: { type: 'number', enum: [123.23] },
           equalsComplex: {},

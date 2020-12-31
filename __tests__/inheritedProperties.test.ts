@@ -81,6 +81,7 @@ describe('Inheriting validation decorators', () => {
           default: 'some@email.com',
           format: 'email',
           type: 'string',
+          not: { type: 'null' },
         },
         password: {
           description: 'Password field',
@@ -90,6 +91,7 @@ describe('Inheriting validation decorators', () => {
         phone: {
           format: 'mobile-phone',
           type: 'string',
+          not: { type: 'null' },
         },
       },
       required: ['email', 'phone'],
@@ -103,6 +105,7 @@ describe('Inheriting validation decorators', () => {
           default: 'some@email.com',
           format: 'email',
           type: 'string',
+          not: { type: 'null' },
         },
         name: {
           maxLength: 20,
@@ -113,11 +116,13 @@ describe('Inheriting validation decorators', () => {
           description: 'Password field - required!',
           minLength: 20,
           type: 'string',
+          not: { type: 'null' },
         },
         phone: {
           format: 'mobile-phone',
           summary: 'Mobile phone number',
           type: 'string',
+          not: { type: 'null' },
         },
         welcome: {
           pattern: 'hello',
