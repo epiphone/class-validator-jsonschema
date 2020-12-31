@@ -37,6 +37,7 @@ export const defaultConverters: ISchemaConverters = {
       return targetToSchema(childType, options)
     }
   },
+  [cv.ValidationTypes.WHITELIST]: {},
   [cv.ValidationTypes.CONDITIONAL_VALIDATION]: {},
   [cv.ValidationTypes.IS_DEFINED]: {},
   [cv.EQUALS]: (meta) => {

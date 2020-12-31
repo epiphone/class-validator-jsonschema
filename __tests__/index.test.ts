@@ -1,5 +1,6 @@
 // tslint:disable:no-submodule-imports
 import {
+  Allow,
   ArrayMaxSize,
   ArrayNotContains,
   IsBoolean,
@@ -35,6 +36,9 @@ class User {
   @IsNotEmptyObject()
   @IsOptional()
   nonEmptyObject: {}
+
+  @Allow()
+  any: unknown
 }
 
 // @ts-ignore: not referenced
@@ -134,6 +138,7 @@ describe('classValidatorConverter', () => {
           id: { type: 'string' },
           object: { type: 'object' },
           nonEmptyObject: { type: 'object', minProperties: 1 },
+          any: {},
           tags: {
             items: {
               maxLength: 20,
@@ -146,7 +151,7 @@ describe('classValidatorConverter', () => {
             type: 'array',
           },
         },
-        required: ['id', 'firstName', 'object'],
+        required: ['id', 'firstName', 'object', 'any'],
         type: 'object',
       },
     })
