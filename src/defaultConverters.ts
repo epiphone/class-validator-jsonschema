@@ -366,7 +366,7 @@ function constraintToSchema(primitive: any): SchemaObject | void {
   const primitives = ['string', 'number', 'boolean']
   const type = typeof primitive
   if (_.includes(primitives, type)) {
-    return { type }
+    return { type: type as 'string' | 'number' | 'boolean' }
   }
 }
 
