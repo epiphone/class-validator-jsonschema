@@ -6,7 +6,7 @@ import {
   IsEmpty,
   IsMongoId,
   MaxLength,
-  MetadataStorage
+  MetadataStorage,
 } from 'class-validator'
 import * as _ from 'lodash'
 
@@ -15,14 +15,14 @@ import { JSONSchema, validationMetadatasToSchemas } from '../src'
 @JSONSchema({
   deprecated: true,
   description: 'A User object',
-  example: { id: '123' }
+  example: { id: '123' },
 })
 // @ts-ignore: not referenced
 class User {
   @JSONSchema({
     default: '1',
     description: 'User ID',
-    pattern: '.*'
+    pattern: '.*',
   })
   @IsMongoId()
   id: string
@@ -30,13 +30,13 @@ class User {
   @MaxLength(20, { each: true })
   @ArrayMaxSize(5)
   @JSONSchema({
-    items: { description: 'Tag string' }
+    items: { description: 'Tag string' },
   })
   @ArrayNotContains(['admin'])
   tags?: string[]
 
   @JSONSchema(() => ({
-    anyOf: [{ type: 'null' }, { type: 'string', const: '' }]
+    anyOf: [{ type: 'null' }, { type: 'string', const: '' }],
   }))
   @IsEmpty()
   empty?: string
@@ -57,26 +57,26 @@ describe('decorators', () => {
   it('merges property-level schema keywords from decorator value', () => {
     expect(schemas.User.properties).toEqual({
       empty: {
-        anyOf: [{ type: 'null' }, { type: 'string', const: '' }]
+        anyOf: [{ type: 'null' }, { type: 'string', const: '' }],
       },
       id: {
         default: '1',
         description: 'User ID',
         pattern: '.*',
-        type: 'string'
+        type: 'string',
       },
       tags: {
         items: {
           description: 'Tag string',
           maxLength: 20,
           not: {
-            anyOf: [{ enum: ['admin'], type: 'string' }]
+            anyOf: [{ enum: ['admin'], type: 'string' }],
           },
-          type: 'string'
+          type: 'string',
         },
         maxItems: 5,
-        type: 'array'
-      }
+        type: 'array',
+      },
     })
   })
 })

@@ -9,11 +9,11 @@ class Comment {}
 
 enum PostType {
   Public,
-  Private
+  Private,
 }
 enum Role {
   Anonymous = 'anonymous',
-  User = 'user'
+  User = 'user',
 }
 
 // @ts-ignore: not referenced
@@ -150,7 +150,7 @@ describe('defaultConverters', () => {
     expect(schemas).toEqual({
       User: {
         properties: {
-          isDefined: {},
+          isDefined: { not: { type: 'null' } },
           equalsString: { type: 'string', enum: ['x'] },
           equalsNumber: { type: 'number', enum: [123.23] },
           equalsComplex: {},
@@ -169,11 +169,11 @@ describe('defaultConverters', () => {
                     { type: 'boolean' },
                     { type: 'integer' },
                     { type: 'array' },
-                    { type: 'object' }
-                  ]
-                }
-              }
-            ]
+                    { type: 'object' },
+                  ],
+                },
+              },
+            ],
           },
           isNotEmpty: { minLength: 1, type: 'string' },
           isInEmpty: {},
@@ -186,8 +186,8 @@ describe('defaultConverters', () => {
           isDate: {
             oneOf: [
               { format: 'date', type: 'string' },
-              { format: 'date-time', type: 'string' }
-            ]
+              { format: 'date-time', type: 'string' },
+            ],
           },
           isString: { type: 'string' },
           isNumber: { type: 'number' },
@@ -207,21 +207,21 @@ describe('defaultConverters', () => {
             description: `After ${new Date('2017').toJSON()}`,
             oneOf: [
               { format: 'date', type: 'string' },
-              { format: 'date-time', type: 'string' }
-            ]
+              { format: 'date-time', type: 'string' },
+            ],
           },
           maxDate: {
             description: `Before ${new Date('2017').toJSON()}`,
             oneOf: [
               { format: 'date', type: 'string' },
-              { format: 'date-time', type: 'string' }
-            ]
+              { format: 'date-time', type: 'string' },
+            ],
           },
 
           isBooleanString: { type: 'string', enum: ['true', 'false'] },
           isDateString: {
             pattern: 'd{4}-[01]d-[0-3]dT[0-2]d:[0-5]d:[0-5]d.d+Z?',
-            type: 'string'
+            type: 'string',
           },
           isNumberString: { pattern: '^[-+]?[0-9]+$', type: 'string' },
 
@@ -239,17 +239,17 @@ describe('defaultConverters', () => {
           isFullWidth: {
             pattern:
               '[^\\u0020-\\u007E\\uFF61-\\uFF9F\\uFFA0-\\uFFDC\\uFFE8-\\uFFEE0-9a-zA-Z]',
-            type: 'string'
+            type: 'string',
           },
           isHalfWidth: {
             pattern:
               '[\\u0020-\\u007E\\uFF61-\\uFF9F\\uFFA0-\\uFFDC\\uFFE8-\\uFFEE0-9a-zA-Z]',
-            type: 'string'
+            type: 'string',
           },
           isVariableWidth: { type: 'string' },
           isHexColor: {
             pattern: '^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$',
-            type: 'string'
+            type: 'string',
           },
           isHexadecimal: { pattern: '^[0-9a-fA-F]+$', type: 'string' },
           isIPv4: { format: 'ipv4', type: 'string' },
@@ -259,23 +259,23 @@ describe('defaultConverters', () => {
           isISO8601: {
             oneOf: [
               { format: 'date', type: 'string' },
-              { format: 'date-time', type: 'string' }
-            ]
+              { format: 'date-time', type: 'string' },
+            ],
           },
           isJSON: { format: 'json', type: 'string' },
           isLowerCase: { type: 'string' },
           isMobilePhone: { format: 'mobile-phone', type: 'string' },
           isMongoId: {
             pattern: '^[0-9a-fA-F]{24}$',
-            type: 'string'
+            type: 'string',
           },
           isMultibyte: {
             pattern: '[^\\x00-\\x7F]',
-            type: 'string'
+            type: 'string',
           },
           isSurrogatePair: {
             pattern: '[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]',
-            type: 'string'
+            type: 'string',
           },
           isUrl: { format: 'url', type: 'string' },
           isUUID: { format: 'uuid', type: 'string' },
@@ -287,7 +287,7 @@ describe('defaultConverters', () => {
           matches: { pattern: '\\d[a-zA-Z]+', type: 'string' },
           isMilitaryTime: {
             pattern: '^([01]\\d|2[0-3]):?([0-5]\\d)$',
-            type: 'string'
+            type: 'string',
           },
 
           arrayContainsString: {
@@ -295,18 +295,18 @@ describe('defaultConverters', () => {
             not: {
               anyOf: [
                 { items: { not: { type: 'string', enum: ['x'] } } },
-                { items: { not: { type: 'string', enum: ['y'] } } }
-              ]
-            }
+                { items: { not: { type: 'string', enum: ['y'] } } },
+              ],
+            },
           },
           arrayContainsVarious: {
             type: 'array',
             not: {
               anyOf: [
                 { items: { not: { type: 'boolean', enum: [true] } } },
-                { items: { not: { type: 'number', enum: [1] } } }
-              ]
-            }
+                { items: { not: { type: 'number', enum: [1] } } },
+              ],
+            },
           },
           arrayContainsComplex: { type: 'array', items: {} },
           arrayNotContains: {
@@ -315,20 +315,20 @@ describe('defaultConverters', () => {
               not: {
                 anyOf: [
                   { enum: ['x'], type: 'string' },
-                  { enum: ['y'], type: 'string' }
-                ]
-              }
-            }
+                  { enum: ['y'], type: 'string' },
+                ],
+              },
+            },
           },
           arrayNotContainsComplex: { type: 'array', items: {} },
           arrayNotEmpty: { type: 'array', items: {}, minItems: 1 },
           arrayMinSize: { type: 'array', items: {}, minItems: 1 },
           arrayMaxSize: { type: 'array', items: {}, maxItems: 10 },
-          arrayUnique: { type: 'array', items: {}, uniqueItems: true }
+          arrayUnique: { type: 'array', items: {}, uniqueItems: true },
         },
         required: expect.any(Array),
-        type: 'object'
-      }
+        type: 'object',
+      },
     })
   })
 })

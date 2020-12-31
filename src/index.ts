@@ -28,7 +28,9 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
     .groupBy('target.name')
     .mapValues((ownMetas) => {
       const target = ownMetas[0].target as Function
-      const metas = ownMetas.concat(getInheritedMetadatas(target, metadatas))
+      const metas = ownMetas
+        .concat(getInheritedMetadatas(target, metadatas))
+        .filter((propMeta) => !isExcluded(propMeta, options))
 
       const properties = _(metas)
         .groupBy('propertyName')
@@ -141,8 +143,18 @@ function applyConverters(
     return meta.each ? { items, type: 'array' } : items
   }
 
-  // @ts-ignore: array spread
   return _.merge({}, ...propertyMetadatas.map(convert))
+}
+
+/** Check whether property is excluded with class-transformer `@Exclude` decorator. */
+function isExcluded(
+  propertyMetadata: ValidationMetadata,
+  options: IOptions
+): boolean {
+  return !!options.classTransformerMetadataStorage?.findExcludeMetadata(
+    propertyMetadata.target as Function,
+    propertyMetadata.propertyName
+  )
 }
 
 /**

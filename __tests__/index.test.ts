@@ -1,19 +1,20 @@
 // tslint:disable:no-submodule-imports
 import {
+  Allow,
   ArrayMaxSize,
   ArrayNotContains,
   IsBoolean,
   IsEmpty,
+  IsNotEmptyObject,
+  IsObject,
   IsOptional,
   IsString,
   Length,
   MaxLength,
   MinLength,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
-import * as _ from 'lodash'
-
 import { validationMetadatasToSchemas } from '../src'
 
 class User {
@@ -29,6 +30,15 @@ class User {
   tags: string[]
 
   @IsEmpty() empty: string
+
+  @IsObject() object: object
+
+  @IsNotEmptyObject()
+  @IsOptional()
+  nonEmptyObject: {}
+
+  @Allow()
+  any: unknown
 }
 
 // @ts-ignore: not referenced
@@ -50,12 +60,12 @@ describe('classValidatorConverter', () => {
   it('handles empty metadata', () => {
     const emptyStorage: any = {
       constraintMetadatas: [],
-      validationMetadatas: []
+      validationMetadatas: [],
     }
 
     expect(
       validationMetadatasToSchemas({
-        classValidatorMetadataStorage: emptyStorage
+        classValidatorMetadataStorage: emptyStorage,
       })
     ).toEqual({})
   })
@@ -71,15 +81,15 @@ describe('classValidatorConverter', () => {
       propertyName: 'id',
       target: User,
       type: 'NON_EXISTENT_METADATA_TYPE',
-      validationTypeOptions: {}
+      validationTypeOptions: {},
     }
     const storage: any = {
       constraintMetadatas: [],
-      validationMetadatas: [customMetadata]
+      validationMetadatas: [customMetadata],
     }
 
     const schemas = validationMetadatasToSchemas({
-      classValidatorMetadataStorage: storage
+      classValidatorMetadataStorage: storage,
     })
     expect(schemas.User.properties!.id).toEqual({ type: 'string' })
   })
@@ -91,18 +101,18 @@ describe('classValidatorConverter', () => {
       Post: {
         properties: {
           published: {
-            type: 'boolean'
+            type: 'boolean',
           },
           title: {
             maxLength: 100,
             minLength: 2,
-            type: 'string'
+            type: 'string',
           },
           user: {
-            $ref: '#/definitions/User'
-          }
+            $ref: '#/definitions/User',
+          },
         },
-        type: 'object'
+        type: 'object',
       },
       User: {
         properties: {
@@ -117,30 +127,33 @@ describe('classValidatorConverter', () => {
                     { type: 'boolean' },
                     { type: 'integer' },
                     { type: 'array' },
-                    { type: 'object' }
-                  ]
+                    { type: 'object' },
+                  ],
                 },
-                nullable: true
-              }
-            ]
+                nullable: true,
+              },
+            ],
           },
           firstName: { minLength: 5, type: 'string' },
           id: { type: 'string' },
+          object: { type: 'object' },
+          nonEmptyObject: { type: 'object', minProperties: 1 },
+          any: {},
           tags: {
             items: {
               maxLength: 20,
               not: {
-                anyOf: [{ enum: ['admin'], type: 'string' }]
+                anyOf: [{ enum: ['admin'], type: 'string' }],
               },
-              type: 'string'
+              type: 'string',
             },
             maxItems: 5,
-            type: 'array'
-          }
+            type: 'array',
+          },
         },
-        required: ['id', 'firstName'],
-        type: 'object'
-      }
+        required: ['id', 'firstName', 'object', 'any'],
+        type: 'object',
+      },
     })
   })
 })

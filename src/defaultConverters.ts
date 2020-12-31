@@ -37,8 +37,11 @@ export const defaultConverters: ISchemaConverters = {
       return targetToSchema(childType, options)
     }
   },
+  [cv.ValidationTypes.WHITELIST]: {},
   [cv.ValidationTypes.CONDITIONAL_VALIDATION]: {},
-  [cv.ValidationTypes.IS_DEFINED]: {},
+  [cv.ValidationTypes.IS_DEFINED]: {
+    not: { type: 'null' },
+  },
   [cv.EQUALS]: (meta) => {
     const schema = constraintToSchema(meta.constraints[0])
     if (schema) {
@@ -283,6 +286,13 @@ export const defaultConverters: ISchemaConverters = {
   },
   [cv.IS_UPPERCASE]: {
     type: 'string',
+  },
+  [cv.IS_OBJECT]: {
+    type: 'object',
+  },
+  [cv.IS_NOT_EMPTY_OBJECT]: {
+    type: 'object',
+    minProperties: 1,
   },
   [cv.MIN_LENGTH]: (meta) => ({
     minLength: meta.constraints[0],
