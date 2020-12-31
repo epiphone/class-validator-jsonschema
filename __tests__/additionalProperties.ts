@@ -6,7 +6,7 @@ import { defaultMetadataStorage } from 'class-transformer/storage'
 
 class User {
   @IsString()
-  name: string;
+  name: string
 }
 
 // @ts-ignore: not referenced
@@ -14,13 +14,13 @@ class Post {
   @Type(() => {
     return String
   })
-  @MinLength(2, {each: true})
+  @MinLength(2, { each: true })
   userStatus: Map<string, string>
 }
 
 // @ts-ignore: not referenced
 class PostWidthUsers {
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @Type(() => User)
   users: Map<string, User>
 }
@@ -31,46 +31,40 @@ describe('classValidatorConverter', () => {
       classTransformerMetadataStorage: defaultMetadataStorage,
     })
     expect(schemas).toEqual({
-      "User": {
-        "properties": {
-          "name": {
-            "type": "string"
-          }
+      User: {
+        properties: {
+          name: {
+            type: 'string',
+          },
         },
-        "type": "object",
-        "required": [
-          "name"
-        ]
+        type: 'object',
+        required: ['name'],
       },
-      "Post": {
-        "properties": {
-          "userStatus": {
-            "additionalProperties": {
-              "minLength": 2,
-              "type": "string"
+      Post: {
+        properties: {
+          userStatus: {
+            additionalProperties: {
+              minLength: 2,
+              type: 'string',
             },
-            "type": "object"
-          }
+            type: 'object',
+          },
         },
-        "type": "object",
-        "required": [
-          "userStatus"
-        ]
+        type: 'object',
+        required: ['userStatus'],
       },
-      "PostWidthUsers": {
-        "properties": {
-          "users": {
-            "additionalProperties": {
-              "$ref": "#/definitions/User"
+      PostWidthUsers: {
+        properties: {
+          users: {
+            additionalProperties: {
+              $ref: '#/definitions/User',
             },
-            "type": "object"
-          }
+            type: 'object',
+          },
         },
-        "type": "object",
-        "required": [
-          "users"
-        ]
-      }
+        type: 'object',
+        required: ['users'],
+      },
     })
   })
 })

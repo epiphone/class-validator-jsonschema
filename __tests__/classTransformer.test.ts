@@ -7,7 +7,7 @@ import {
   IsOptional,
   IsString,
   MetadataStorage,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator'
 
 import { validationMetadatasToSchemas } from '../src'
@@ -44,23 +44,23 @@ describe('class-transformer compatibility', () => {
       properties: {
         anotherErrorList: {
           items: {
-            $ref: '#/definitions/Array'
+            $ref: '#/definitions/Array',
           },
           minItems: 1,
-          type: 'array'
+          type: 'array',
         },
         errorList: {
           items: {
-            $ref: '#/definitions/Array'
+            $ref: '#/definitions/Array',
           },
-          type: 'array'
+          type: 'array',
         },
         name: {
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
       required: ['name', 'errorList'],
-      type: 'object'
+      type: 'object',
     })
   })
 
@@ -68,30 +68,30 @@ describe('class-transformer compatibility', () => {
     // @ts-ignore
     const metadata = getFromContainer(MetadataStorage).validationMetadatas
     const schemas = validationMetadatasToSchemas({
-      classTransformerMetadataStorage: defaultMetadataStorage
+      classTransformerMetadataStorage: defaultMetadataStorage,
     })
 
     expect(schemas.ValidationErrorModel).toEqual({
       properties: {
         anotherErrorList: {
           items: {
-            $ref: '#/definitions/ValidationError'
+            $ref: '#/definitions/ValidationError',
           },
           minItems: 1,
-          type: 'array'
+          type: 'array',
         },
         errorList: {
           items: {
-            $ref: '#/definitions/ValidationError'
+            $ref: '#/definitions/ValidationError',
           },
-          type: 'array'
+          type: 'array',
         },
         name: {
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
       required: ['name', 'errorList'],
-      type: 'object'
+      type: 'object',
     })
   })
 })

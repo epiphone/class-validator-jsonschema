@@ -9,7 +9,7 @@ import {
   IsString,
   MaxLength,
   MetadataStorage,
-  MinLength
+  MinLength,
 } from 'class-validator'
 import * as _ from 'lodash'
 
@@ -17,11 +17,11 @@ import { JSONSchema, validationMetadatasToSchemas } from '../src'
 
 @JSONSchema({
   description: 'Contains email, password and phone',
-  summary: 'Base object'
+  summary: 'Base object',
 })
 class BaseContent {
   @JSONSchema({
-    default: 'some@email.com'
+    default: 'some@email.com',
   })
   @IsDefined()
   @IsEmail()
@@ -29,7 +29,7 @@ class BaseContent {
 
   @JSONSchema({
     description: 'Password field',
-    summary: 'Password'
+    summary: 'Password',
   })
   @IsString()
   @IsOptional()
@@ -41,7 +41,7 @@ class BaseContent {
 }
 
 @JSONSchema({
-  summary: 'User object'
+  summary: 'User object',
 })
 // @ts-ignore: not referenced
 class User extends BaseContent {
@@ -50,14 +50,14 @@ class User extends BaseContent {
   name: string
 
   @JSONSchema({
-    description: 'Password field - required!'
+    description: 'Password field - required!',
   })
   @MinLength(20)
   @IsDefined()
   password: string
 
   @JSONSchema({
-    summary: 'Mobile phone number'
+    summary: 'Mobile phone number',
   })
   @IsOptional()
   phone: string
@@ -80,21 +80,21 @@ describe('Inheriting validation decorators', () => {
         email: {
           default: 'some@email.com',
           format: 'email',
-          type: 'string'
+          type: 'string',
         },
         password: {
           description: 'Password field',
           summary: 'Password',
-          type: 'string'
+          type: 'string',
         },
         phone: {
           format: 'mobile-phone',
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
       required: ['email', 'phone'],
       summary: 'Base object',
-      type: 'object'
+      type: 'object',
     })
 
     expect(schemas.User).toEqual({
@@ -102,37 +102,37 @@ describe('Inheriting validation decorators', () => {
         email: {
           default: 'some@email.com',
           format: 'email',
-          type: 'string'
+          type: 'string',
         },
         name: {
           maxLength: 20,
           minLength: 10,
-          type: 'string'
+          type: 'string',
         },
         password: {
           description: 'Password field - required!',
           minLength: 20,
-          type: 'string'
+          type: 'string',
         },
         phone: {
           format: 'mobile-phone',
           summary: 'Mobile phone number',
-          type: 'string'
+          type: 'string',
         },
         welcome: {
           pattern: 'hello',
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
       required: ['name', 'welcome', 'email'],
       summary: 'User object',
-      type: 'object'
+      type: 'object',
     })
   })
 
   it('handles inherited IsDefined decorators when skipMissingProperties is enabled', () => {
     const schemas = validationMetadatasToSchemas({
-      skipMissingProperties: true
+      skipMissingProperties: true,
     })
 
     expect(schemas.BaseContent.required).toEqual(['email', 'phone'])

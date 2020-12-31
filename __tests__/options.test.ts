@@ -8,7 +8,7 @@ import {
   MAX_LENGTH,
   MaxLength,
   MetadataStorage,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator'
 import * as _ from 'lodash'
 
@@ -39,17 +39,17 @@ const defaultSchemas = validationMetadatasToSchemas(metadata)
 describe('options', () => {
   it('sets default refPointerPrefix', () => {
     expect(defaultSchemas.Post.properties!.user).toEqual({
-      $ref: '#/definitions/User'
+      $ref: '#/definitions/User',
     })
   })
 
   it('handles refPointerPrefix option', () => {
     const schemas = validationMetadatasToSchemas({
-      refPointerPrefix: '#/components/schema/'
+      refPointerPrefix: '#/components/schema/',
     })
 
     expect(schemas.Post.properties!.user).toEqual({
-      $ref: '#/components/schema/User'
+      $ref: '#/components/schema/User',
     })
   })
 
@@ -59,22 +59,22 @@ describe('options', () => {
       id: { type: 'string' },
       tags: {
         items: { type: 'string', maxLength: 20 },
-        type: 'array'
-      }
+        type: 'array',
+      },
     })
 
     const schemas = validationMetadatasToSchemas({
       additionalConverters: {
         [IS_STRING]: {
           description: 'A string value',
-          type: 'string'
+          type: 'string',
         },
-        [MAX_LENGTH]: meta => ({
+        [MAX_LENGTH]: (meta) => ({
           exclusiveMaximum: true,
           maxLength: meta.constraints[0] + 1,
-          type: 'string'
-        })
-      }
+          type: 'string',
+        }),
+      },
     })
 
     expect(schemas.User.properties).toEqual({
@@ -82,8 +82,8 @@ describe('options', () => {
       id: { description: 'A string value', type: 'string' },
       tags: {
         items: { exclusiveMaximum: true, type: 'string', maxLength: 21 },
-        type: 'array'
-      }
+        type: 'array',
+      },
     })
   })
 
@@ -92,7 +92,7 @@ describe('options', () => {
     expect(defaultSchemas.Post).not.toHaveProperty('required')
 
     const schemas = validationMetadatasToSchemas({
-      skipMissingProperties: true
+      skipMissingProperties: true,
     })
     expect(schemas.User.required).toEqual(['id'])
     expect(defaultSchemas.Post).not.toHaveProperty('required')

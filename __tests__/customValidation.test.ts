@@ -3,7 +3,7 @@ import {
   Validate,
   ValidationArguments,
   ValidatorConstraint,
-  ValidatorConstraintInterface
+  ValidatorConstraintInterface,
 } from 'class-validator'
 import * as _ from 'lodash'
 
@@ -35,43 +35,43 @@ class InvalidPost {
 describe('custom validation classes', () => {
   it('uses property type if no additional converter is supplied', () => {
     const schemas = validationMetadatasToSchemas({
-      classValidatorMetadataStorage: getMetadataStorage()
+      classValidatorMetadataStorage: getMetadataStorage(),
     })
     expect(schemas.Post).toEqual({
       properties: {
-        title: { type: 'string' }
+        title: { type: 'string' },
       },
       required: ['title'],
-      type: 'object'
+      type: 'object',
     })
 
     expect(schemas.InvalidPost).toEqual({
       properties: {
         titleBoolean: { type: 'boolean' },
-        titleNumber: { type: 'number' }
+        titleNumber: { type: 'number' },
       },
       required: ['titleNumber', 'titleBoolean'],
-      type: 'object'
+      type: 'object',
     })
   })
 
   it('uses additionalConverter to generate schema when supplied', () => {
     const schemas = validationMetadatasToSchemas({
       additionalConverters: {
-        CustomTextLength: meta => ({
+        CustomTextLength: (meta) => ({
           maxLength: meta.constraints[1] - 1,
           minLength: meta.constraints[0] + 1,
-          type: 'string'
-        })
-      }
+          type: 'string',
+        }),
+      },
     })
 
     expect(schemas.Post).toEqual({
       properties: {
-        title: { maxLength: 10, minLength: 1, type: 'string' }
+        title: { maxLength: 10, minLength: 1, type: 'string' },
       },
       required: ['title'],
-      type: 'object'
+      type: 'object',
     })
   })
 })
