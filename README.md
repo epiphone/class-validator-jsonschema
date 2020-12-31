@@ -6,7 +6,7 @@ Convert [class-validator](https://github.com/typestack/class-validator)-decorate
 
 ## Installation
 
-`yarn add class-validator-jsonschema`
+`npm install class-validator-jsonschema`
 
 Note that the library is **only compatible with `class-validator` versions 0.12 or higher**!
 
@@ -68,9 +68,9 @@ const schemas = validationMetadatasToSchemas({
   additionalConverters: {
     [ValidationTypes.IS_STRING]: {
       description: 'A string value',
-      type: 'string'
-    }
-  }
+      type: 'string',
+    },
+  },
 })
 ```
 
@@ -108,7 +108,7 @@ import {
   Validate,
   ValidationArguments,
   ValidatorConstraint,
-  ValidatorConstraintInterface
+  ValidatorConstraintInterface,
 } from 'class-validator'
 
 // Implementing the validator:
@@ -134,12 +134,12 @@ Now to handle your custom validator's JSON Schema conversion include a `CustomTe
 ```typescript
 const schemas = validationMetadatasToSchemas({
   additionalConverters: {
-    CustomTextLength: meta => ({
+    CustomTextLength: (meta) => ({
       maxLength: meta.constraints[1],
       minLength: meta.constraints[0],
-      type: 'string'
-    })
-  }
+      type: 'string',
+    }),
+  },
 })
 ```
 
@@ -152,13 +152,13 @@ import { JSONSchema } from 'class-validator-jsonschema'
 
 @JSONSchema({
   description: 'A User object',
-  example: { id: '123' }
+  example: { id: '123' },
 })
 class BlogPost {
   @IsString()
   @JSONSchema({
     description: 'User primary key',
-    format: 'custom-id'
+    format: 'custom-id',
   })
   id: string
 }
@@ -223,7 +223,7 @@ class User {
 }
 
 const schemas = validationMetadatasToSchemas({
-  classTransformerMetadataStorage: defaultMetadataStorage // 2) Define class-transformer metadata in options
+  classTransformerMetadataStorage: defaultMetadataStorage, // 2) Define class-transformer metadata in options
 })
 ```
 
@@ -235,7 +235,7 @@ Under the hood we grab validation metadata from the default storage returned by 
 
 ```typescript
 const schemas = validationMetadatasToSchemas({
-  classValidatorMetadataStorage: myCustomMetadataStorage
+  classValidatorMetadataStorage: myCustomMetadataStorage,
 })
 ```
 
