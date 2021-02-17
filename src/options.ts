@@ -34,10 +34,13 @@ export interface IOptions extends ValidatorOptions {
    * Defaults to '#/definitions/'.
    */
   refPointerPrefix: string
+
+  schemaNameField: string
 }
 
 export const defaultOptions: IOptions = {
   additionalConverters: {},
   classValidatorMetadataStorage: getMetadataStorage(),
   refPointerPrefix: '#/definitions/',
+  schemaNameField: 'name'
 }
