@@ -25,7 +25,7 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
   )
 
   const schemas: { [key: string]: SchemaObject } = _(metadatas)
-    .groupBy('target.name')
+    .groupBy(value => _.get(value, `target.${options.schemaNameField}`, _.get(value, `target.name`)))
     .mapValues((ownMetas) => {
       const target = ownMetas[0].target as Function
       const metas = ownMetas

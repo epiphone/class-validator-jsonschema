@@ -43,6 +43,8 @@ class User {
 
 // @ts-ignore: not referenced
 class Post {
+  static schemaName = 'ChangedPost'
+
   @IsOptional()
   @ValidateNested()
   user: User
@@ -99,6 +101,71 @@ describe('classValidatorConverter', () => {
 
     expect(schemas).toEqual({
       Post: {
+        properties: {
+          published: {
+            type: 'boolean',
+          },
+          title: {
+            maxLength: 100,
+            minLength: 2,
+            type: 'string',
+          },
+          user: {
+            $ref: '#/definitions/User',
+          },
+        },
+        type: 'object',
+      },
+      User: {
+        properties: {
+          empty: {
+            anyOf: [
+              { type: 'string', enum: [''] },
+              {
+                not: {
+                  anyOf: [
+                    { type: 'string' },
+                    { type: 'number' },
+                    { type: 'boolean' },
+                    { type: 'integer' },
+                    { type: 'array' },
+                    { type: 'object' },
+                  ],
+                },
+                nullable: true,
+              },
+            ],
+          },
+          firstName: { minLength: 5, type: 'string' },
+          id: { type: 'string' },
+          object: { type: 'object' },
+          nonEmptyObject: { type: 'object', minProperties: 1 },
+          any: {},
+          tags: {
+            items: {
+              maxLength: 20,
+              not: {
+                anyOf: [{ enum: ['admin'], type: 'string' }],
+              },
+              type: 'string',
+            },
+            maxItems: 5,
+            type: 'array',
+          },
+        },
+        required: ['id', 'firstName', 'object', 'any'],
+        type: 'object',
+      },
+    })
+  })
+
+  it('should use custom schema name field', () => {
+    const schemas = validationMetadatasToSchemas({
+      schemaNameField: 'schemaName',
+    })
+
+    expect(schemas).toEqual({
+      ChangedPost: {
         properties: {
           published: {
             type: 'boolean',
