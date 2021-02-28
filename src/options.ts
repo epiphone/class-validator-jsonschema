@@ -35,6 +35,10 @@ export interface IOptions extends ValidatorOptions {
    */
   refPointerPrefix: string
 
+  /**
+   * Property used to group schemas.
+   * Defaults to `name`, i.e., class name.
+   */
   schemaNameField: string
 }
 
@@ -42,5 +46,5 @@ export const defaultOptions: IOptions = {
   additionalConverters: {},
   classValidatorMetadataStorage: getMetadataStorage(),
   refPointerPrefix: '#/definitions/',
-  schemaNameField: 'name'
+  schemaNameField: 'name',
 }
