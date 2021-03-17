@@ -26,8 +26,7 @@
   },
   "prettier": {
     "semi": false,
-    "singleQuote": true,
-    "endOfLine": "auto"
+    "singleQuote": true
   },
   "dependencies": {
     "lodash.groupby": "^4.6.0",
