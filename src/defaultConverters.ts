@@ -1,7 +1,6 @@
 // tslint:disable:no-submodule-imports
 import * as cv from 'class-validator'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
-import * as _ from 'lodash'
 import { SchemaObject } from 'openapi3-ts'
 import 'reflect-metadata'
 
@@ -18,13 +17,13 @@ export type SchemaConverter = (
 
 export const defaultConverters: ISchemaConverters = {
   [cv.ValidationTypes.CUSTOM_VALIDATION]: (meta, options) => {
-    if (_.isFunction(meta.target)) {
+    if (typeof meta.target === 'function') {
       const type = getPropType(meta.target.prototype, meta.propertyName)
       return targetToSchema(type, options)
     }
   },
   [cv.ValidationTypes.NESTED_VALIDATION]: (meta, options) => {
-    if (_.isFunction(meta.target)) {
+    if (typeof meta.target === 'function') {
       const typeMeta = options.classTransformerMetadataStorage
         ? options.classTransformerMetadataStorage.findTypeMetadata(
             meta.target,
@@ -77,14 +76,18 @@ export const defaultConverters: ISchemaConverters = {
     type: 'string',
   },
   [cv.IS_IN]: (meta) => {
-    const [head, ...rest] = meta.constraints[0].map(constraintToSchema)
-    if (head && _.every(rest, { type: head.type })) {
+    const [head, ...rest]: SchemaObject[] = meta.constraints[0].map(
+      constraintToSchema
+    )
+    if (head && rest.every((item) => item.type === head.type)) {
       return { ...head, enum: meta.constraints[0] }
     }
   },
   [cv.IS_NOT_IN]: (meta) => {
-    const [head, ...rest] = meta.constraints[0].map(constraintToSchema)
-    if (head && _.every(rest, { type: head.type })) {
+    const [head, ...rest]: SchemaObject[] = meta.constraints[0].map(
+      constraintToSchema
+    )
+    if (head && rest.every((item) => item.type === head.type)) {
       return { not: { ...head, enum: meta.constraints[0] } }
     }
   },
@@ -311,11 +314,11 @@ export const defaultConverters: ISchemaConverters = {
     type: 'string',
   },
   [cv.ARRAY_CONTAINS]: (meta) => {
-    const schemas = meta.constraints[0].map(constraintToSchema)
-    if (schemas.length > 0 && _.every(schemas, 'type')) {
+    const schemas: SchemaObject[] = meta.constraints[0].map(constraintToSchema)
+    if (schemas.length > 0 && schemas.every((s) => s && s.type)) {
       return {
         not: {
-          anyOf: _.map(schemas, (d, i) => ({
+          anyOf: schemas.map((d, i) => ({
             items: {
               not: {
                 ...d,
@@ -330,12 +333,12 @@ export const defaultConverters: ISchemaConverters = {
     return { items: {}, type: 'array' }
   },
   [cv.ARRAY_NOT_CONTAINS]: (meta) => {
-    const schemas = meta.constraints[0].map(constraintToSchema)
-    if (schemas.length > 0 && _.every(schemas, 'type')) {
+    const schemas: SchemaObject[] = meta.constraints[0].map(constraintToSchema)
+    if (schemas.length > 0 && schemas.every((s) => s && s.type)) {
       return {
         items: {
           not: {
-            anyOf: _.map(schemas, (d, i) => ({
+            anyOf: schemas.map((d, i) => ({
               ...d,
               enum: [meta.constraints[0][i]],
             })),
@@ -375,18 +378,21 @@ function getPropType(target: object, property: string) {
 function constraintToSchema(primitive: any): SchemaObject | void {
   const primitives = ['string', 'number', 'boolean']
   const type = typeof primitive
-  if (_.includes(primitives, type)) {
+  if (primitives.indexOf(type) !== -1) {
     return { type: type as 'string' | 'number' | 'boolean' }
   }
 }
 
 function targetToSchema(type: any, options: IOptions): SchemaObject | void {
-  if (_.isFunction(type)) {
-    if (_.isString(type.prototype) || _.isSymbol(type.prototype)) {
+  if (typeof type === 'function') {
+    if (
+      type.prototype === String.prototype ||
+      type.prototype === Symbol.prototype
+    ) {
       return { type: 'string' }
-    } else if (_.isNumber(type.prototype)) {
+    } else if (type.prototype === Number.prototype) {
       return { type: 'number' }
-    } else if (_.isBoolean(type.prototype)) {
+    } else if (type.prototype === Boolean.prototype) {
       return { type: 'boolean' }
     }
 

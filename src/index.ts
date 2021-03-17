@@ -2,7 +2,8 @@
 import * as cv from 'class-validator'
 import { ConstraintMetadata } from 'class-validator/types/metadata/ConstraintMetadata'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
-import * as _ from 'lodash'
+import _groupBy from 'lodash.groupby'
+import _merge from 'lodash.merge'
 import { SchemaObject } from 'openapi3-ts'
 
 import { getMetadataSchema } from './decorators'
@@ -24,41 +25,50 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
     options.classValidatorMetadataStorage
   )
 
-  const schemas: { [key: string]: SchemaObject } = _(metadatas)
-    .groupBy((value) =>
-      _.get(
-        value,
-        `target.${options.schemaNameField}`,
-        _.get(value, 'target.name')
-      )
+  const schemas: { [key: string]: SchemaObject } = {}
+  Object.entries(
+    _groupBy(
+      metadatas,
+      ({ target }) =>
+        (<any>target)[options.schemaNameField] ?? (<any>target).name
     )
-    .mapValues((ownMetas) => {
-      const target = ownMetas[0].target as Function
-      const metas = ownMetas
-        .concat(getInheritedMetadatas(target, metadatas))
-        .filter((propMeta) => !isExcluded(propMeta, options))
+  ).forEach(([key, ownMetas]) => {
+    const target = ownMetas[0].target as Function
+    const metas = ownMetas
+      .concat(getInheritedMetadatas(target, metadatas))
+      .filter((propMeta) => !isExcluded(propMeta, options))
 
-      const properties = _(metas)
-        .groupBy('propertyName')
-        .mapValues((propMetas, propKey) => {
-          const schema = applyConverters(propMetas, options)
-          return applyDecorators(schema, target, options, propKey)
-        })
-        .value()
+    const properties: { [name: string]: SchemaObject } = {}
 
-      const definitionSchema: SchemaObject = {
-        properties,
-        type: 'object',
+    Object.entries(_groupBy(metas, 'propertyName')).forEach(
+      ([propName, propMetas]) => {
+        const schema = applyConverters(propMetas, options)
+        properties[propName] = applyDecorators(
+          schema,
+          target,
+          options,
+          propName
+        )
       }
+    )
 
-      const required = getRequiredPropNames(target, metas, options)
-      if (required.length > 0) {
-        definitionSchema.required = required
-      }
+    const definitionSchema: SchemaObject = {
+      properties,
+      type: 'object',
+    }
 
-      return applyDecorators(definitionSchema, target, options, target.name)
-    })
-    .value()
+    const required = getRequiredPropNames(target, metas, options)
+    if (required.length > 0) {
+      definitionSchema.required = required
+    }
+
+    schemas[key] = applyDecorators(
+      definitionSchema,
+      target,
+      options,
+      target.name
+    )
+  })
 
   return schemas
 }
@@ -69,11 +79,8 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
 function getMetadatasFromStorage(
   storage: cv.MetadataStorage
 ): ValidationMetadata[] {
-  const metadatas: ValidationMetadata[] = _.get(storage, 'validationMetadatas')
-  const constraints: ConstraintMetadata[] = _.get(
-    storage,
-    'constraintMetadatas'
-  )
+  const metadatas: ValidationMetadata[] = (<any>storage).validationMetadatas
+  const constraints: ConstraintMetadata[] = (<any>storage).constraintMetadatas
 
   return metadatas.map((meta) => {
     if (meta.constraintCls) {
@@ -106,11 +113,12 @@ function getInheritedMetadatas(
     (d) =>
       d.target instanceof Function &&
       target.prototype instanceof d.target &&
-      !_.find(metadatas, {
-        propertyName: d.propertyName,
-        target,
-        type: d.type,
-      })
+      !metadatas.find(
+        (m) =>
+          m.propertyName === d.propertyName &&
+          m.target === target &&
+          m.type === d.type
+      )
   )
 }
 
@@ -136,7 +144,8 @@ function applyConverters(
     const converter =
       converters[meta.type] || converters[cv.ValidationTypes.CUSTOM_VALIDATION]
 
-    const items = _.isFunction(converter) ? converter(meta, options) : converter
+    const items =
+      typeof converter === 'function' ? converter(meta, options) : converter
 
     if (meta.each && isMap) {
       return {
@@ -149,7 +158,7 @@ function applyConverters(
     return meta.each ? { items, type: 'array' } : items
   }
 
-  return _.merge({}, ...propertyMetadatas.map(convert))
+  return _merge({}, ...propertyMetadatas.map(convert))
 }
 
 /** Check whether property is excluded with class-transformer `@Exclude` decorator. */
@@ -174,9 +183,9 @@ function applyDecorators(
   propertyName: string
 ): SchemaObject {
   const additionalSchema = getMetadataSchema(target.prototype, propertyName)
-  return _.isFunction(additionalSchema)
+  return typeof additionalSchema === 'function'
     ? additionalSchema(schema, options)
-    : _.merge({}, schema, additionalSchema)
+    : _merge({}, schema, additionalSchema)
 }
 
 /**
@@ -191,22 +200,29 @@ function getRequiredPropNames(
   options: IOptions
 ) {
   function isDefined(metas: ValidationMetadata[]) {
-    return _.some(metas, { type: cv.ValidationTypes.IS_DEFINED })
+    return (
+      metas && metas.some(({ type }) => type === cv.ValidationTypes.IS_DEFINED)
+    )
   }
   function isOptional(metas: ValidationMetadata[]) {
-    return _.some(metas, ({ type }) =>
-      _.includes([cv.ValidationTypes.CONDITIONAL_VALIDATION, cv.IS_EMPTY], type)
+    return (
+      metas &&
+      metas.some(
+        ({ type }) =>
+          [cv.ValidationTypes.CONDITIONAL_VALIDATION, cv.IS_EMPTY].indexOf(
+            type
+          ) !== -1
+      )
     )
   }
 
-  return _(metadatas)
-    .groupBy('propertyName')
-    .pickBy((metas) => {
-      const [own, inherited] = _.partition(metas, (d) => d.target === target)
+  return Object.entries(_groupBy(metadatas, (m) => m.propertyName))
+    .filter(([_, metas]) => {
+      const own = metas.filter((m) => m.target === target)
+      const inherited = metas.filter((m) => m.target !== target)
       return options.skipMissingProperties
         ? isDefined(own) || (!isOptional(own) && isDefined(inherited))
         : !(isOptional(own) || isOptional(inherited))
     })
-    .keys()
-    .value()
+    .map(([name]) => name)
 }
