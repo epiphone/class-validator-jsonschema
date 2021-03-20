@@ -2,7 +2,7 @@
 import { IsString, MinLength, ValidateNested } from 'class-validator'
 import { validationMetadatasToSchemas } from '../src'
 import { Type } from 'class-transformer'
-import { defaultMetadataStorage } from 'class-transformer/storage'
+const { defaultMetadataStorage } = require('class-transformer/cjs/storage')
 
 class User {
   @IsString()

@@ -213,8 +213,8 @@ would resolve to classes `Array` and `Promise` in JSON Schema. To work around th
 
 ```typescript
 import { Type } from 'class-transformer'
-import { defaultMetadataStorage } from 'class-transformer/storage'
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema'
+const { defaultMetadataStorage } = require('class-transformer/cjs/storage') // See https://github.com/typestack/class-transformer/issues/563 for alternatives
 
 class User {
   @ValidateNested({ each: true })

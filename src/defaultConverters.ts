@@ -277,7 +277,7 @@ export const defaultConverters: ISchemaConverters = {
     format: 'uuid',
     type: 'string',
   },
-  [cv.LENGTH]: (meta) => {
+  [cv.IS_LENGTH]: (meta) => {
     const [minLength, maxLength] = meta.constraints
     if (maxLength || maxLength === 0) {
       return { minLength, maxLength, type: 'string' }

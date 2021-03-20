@@ -1,4 +1,4 @@
-import { MetadataStorage as ClassTransformerMetadataStorage } from 'class-transformer/metadata/MetadataStorage' // tslint:disable-line:no-submodule-imports
+import type { MetadataStorage as ClassTransformerMetadataStorage } from 'class-transformer/types/MetadataStorage' // tslint:disable-line:no-submodule-imports
 import {
   getMetadataStorage,
   MetadataStorage,

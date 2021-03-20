@@ -1,6 +1,5 @@
 // tslint:disable:no-submodule-imports
 import { Type } from 'class-transformer'
-import { defaultMetadataStorage } from 'class-transformer/storage'
 import {
   ArrayMinSize,
   getFromContainer,
@@ -11,6 +10,7 @@ import {
 } from 'class-validator'
 
 import { validationMetadatasToSchemas } from '../src'
+const { defaultMetadataStorage } = require('class-transformer/cjs/storage')
 
 class ValidationError {
   @IsString({ each: true })
