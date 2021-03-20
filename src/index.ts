@@ -30,7 +30,8 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
     _groupBy(
       metadatas,
       ({ target }) =>
-        (<any>target)[options.schemaNameField] ?? (<any>target).name
+        target[options.schemaNameField as keyof typeof target] ??
+        (target as Function).name
     )
   ).forEach(([key, ownMetas]) => {
     const target = ownMetas[0].target as Function
@@ -79,8 +80,8 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
 function getMetadatasFromStorage(
   storage: cv.MetadataStorage
 ): ValidationMetadata[] {
-  const metadatas: ValidationMetadata[] = (<any>storage).validationMetadatas
-  const constraints: ConstraintMetadata[] = (<any>storage).constraintMetadatas
+  const metadatas: ValidationMetadata[] = (storage as any).validationMetadatas
+  const constraints: ConstraintMetadata[] = (storage as any).constraintMetadatas
 
   return metadatas.map((meta) => {
     if (meta.constraintCls) {
@@ -207,11 +208,8 @@ function getRequiredPropNames(
   function isOptional(metas: ValidationMetadata[]) {
     return (
       metas &&
-      metas.some(
-        ({ type }) =>
-          [cv.ValidationTypes.CONDITIONAL_VALIDATION, cv.IS_EMPTY].indexOf(
-            type
-          ) !== -1
+      metas.some(({ type }) =>
+        [cv.ValidationTypes.CONDITIONAL_VALIDATION, cv.IS_EMPTY].includes(type)
       )
     )
   }

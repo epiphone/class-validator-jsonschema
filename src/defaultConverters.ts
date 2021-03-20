@@ -378,7 +378,7 @@ function getPropType(target: object, property: string) {
 function constraintToSchema(primitive: any): SchemaObject | void {
   const primitives = ['string', 'number', 'boolean']
   const type = typeof primitive
-  if (primitives.indexOf(type) !== -1) {
+  if (primitives.includes(type)) {
     return { type: type as 'string' | 'number' | 'boolean' }
   }
 }
