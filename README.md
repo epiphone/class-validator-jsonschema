@@ -8,9 +8,7 @@ Convert [class-validator](https://github.com/typestack/class-validator)-decorate
 
 `npm install class-validator-jsonschema`
 
-Note that the library is **only compatible with `class-validator` versions 0.12 or higher**!
-
-Try installing `class-validator-jsonschema@1.3.1` in case you're stuck with an older `class-validator` version.
+**Note the peer dependency versions** in [package.json](./package.json). Try installing a previous major version of `class-validator-jsonschema` in case you're stuck with older peer dependencies.
 
 ## Usage
 
