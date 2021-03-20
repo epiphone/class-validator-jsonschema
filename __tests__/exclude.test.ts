@@ -1,8 +1,8 @@
 // tslint:disable:no-submodule-imports
 import { Exclude } from 'class-transformer'
-import { defaultMetadataStorage } from 'class-transformer/storage'
 import { Allow, IsString } from 'class-validator'
 import { validationMetadatasToSchemas } from '../src'
+const { defaultMetadataStorage } = require('class-transformer/cjs/storage')
 
 class Parent {
   @Allow()

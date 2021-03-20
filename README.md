@@ -1,6 +1,6 @@
 # class-validator-jsonschema
 
-![CI status](https://github.com/epiphone/class-validator-jsonschema/workflows/.github/workflows/test.yml/badge.svg?branch=master) [![codecov](https://codecov.io/gh/epiphone/class-validator-jsonschema/branch/master/graph/badge.svg)](https://codecov.io/gh/epiphone/class-validator-jsonschema) [![npm version](https://badge.fury.io/js/class-validator-jsonschema.svg)](https://badge.fury.io/js/class-validator-jsonschema)
+[![codecov](https://codecov.io/gh/epiphone/class-validator-jsonschema/branch/master/graph/badge.svg)](https://codecov.io/gh/epiphone/class-validator-jsonschema) [![npm version](https://badge.fury.io/js/class-validator-jsonschema.svg)](https://badge.fury.io/js/class-validator-jsonschema)
 
 Convert [class-validator](https://github.com/typestack/class-validator)-decorated classes into OpenAPI-compatible JSON Schema. The aim is to provide a best-effort conversion: since some of the `class-validator` decorators lack a direct JSON Schema counterpart, the conversion is bound to be somewhat opinionated. To account for this multiple extension points are available.
 
@@ -8,9 +8,7 @@ Convert [class-validator](https://github.com/typestack/class-validator)-decorate
 
 `npm install class-validator-jsonschema`
 
-Note that the library is **only compatible with `class-validator` versions 0.12 or higher**!
-
-Try installing `class-validator-jsonschema@1.3.1` in case you're stuck with an older `class-validator` version.
+**Note the peer dependency versions** in [package.json](./package.json). Try installing a previous major version of `class-validator-jsonschema` in case you're stuck with older peer dependencies.
 
 ## Usage
 
@@ -213,8 +211,8 @@ would resolve to classes `Array` and `Promise` in JSON Schema. To work around th
 
 ```typescript
 import { Type } from 'class-transformer'
-import { defaultMetadataStorage } from 'class-transformer/storage'
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema'
+const { defaultMetadataStorage } = require('class-transformer/cjs/storage') // See https://github.com/typestack/class-transformer/issues/563 for alternatives
 
 class User {
   @ValidateNested({ each: true })
