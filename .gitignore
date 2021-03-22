@@ -6,3 +6,4 @@ coverage
 *.key
 *.secret
 yarn-error.log
+.idea
