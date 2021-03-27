@@ -8,7 +8,7 @@ import {
   MaxLength,
   MetadataStorage,
 } from 'class-validator'
-import * as _ from 'lodash'
+import _get from 'lodash.get'
 
 import { JSONSchema, validationMetadatasToSchemas } from '../src'
 
@@ -42,7 +42,7 @@ class User {
   empty?: string
 }
 
-const metadata = _.get(getFromContainer(MetadataStorage), 'validationMetadatas')
+const metadata = _get(getFromContainer(MetadataStorage), 'validationMetadatas')
 const schemas = validationMetadatasToSchemas(metadata)
 
 describe('decorators', () => {

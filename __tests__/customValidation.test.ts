@@ -5,7 +5,6 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator'
-import * as _ from 'lodash'
 
 import { validationMetadatasToSchemas } from '../src'
 
