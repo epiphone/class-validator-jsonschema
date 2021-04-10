@@ -15,7 +15,9 @@ export { JSONSchema } from './decorators'
 /**
  * Convert class-validator metadata into JSON Schema definitions.
  */
-export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
+export function validationMetadatasToSchemas(
+  userOptions?: Partial<IOptions>
+): Record<string, SchemaObject> {
   const options: IOptions = {
     ...defaultOptions,
     ...userOptions,
@@ -24,6 +26,21 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
   const metadatas = getMetadatasFromStorage(
     options.classValidatorMetadataStorage
   )
+
+  return validationMetadataArrayToSchemas(metadatas, userOptions)
+}
+
+/**
+ * Convert an array of class-validator metadata into JSON Schema definitions.
+ */
+export function validationMetadataArrayToSchemas(
+  metadatas: ValidationMetadata[],
+  userOptions?: Partial<IOptions>
+): Record<string, SchemaObject> {
+  const options: IOptions = {
+    ...defaultOptions,
+    ...userOptions,
+  }
 
   const schemas: { [key: string]: SchemaObject } = {}
   Object.entries(
@@ -75,12 +92,44 @@ export function validationMetadatasToSchemas(userOptions?: Partial<IOptions>) {
 }
 
 /**
+ * Generate JSON Schema definitions from the target object constructor.
+ */
+export function targetConstructorToSchema(
+  targetConstructor: Function,
+  userOptions?: Partial<IOptions>
+): SchemaObject {
+  const options: IOptions = {
+    ...defaultOptions,
+    ...userOptions,
+  }
+
+  const storage = options.classValidatorMetadataStorage
+  let metadatas = storage.getTargetValidationMetadatas(
+    targetConstructor,
+    '',
+    true,
+    false
+  )
+  metadatas = populateMatadatasWithConstraints(storage, metadatas)
+
+  const schemas = validationMetadataArrayToSchemas(metadatas, userOptions)
+  return Object.values(schemas).length ? Object.values(schemas)[0] : {}
+}
+
+/**
  * Return `storage.validationMetadatas` populated with `constraintMetadatas`.
  */
 function getMetadatasFromStorage(
   storage: cv.MetadataStorage
 ): ValidationMetadata[] {
   const metadatas: ValidationMetadata[] = (storage as any).validationMetadatas
+  return populateMatadatasWithConstraints(storage, metadatas)
+}
+
+function populateMatadatasWithConstraints(
+  storage: cv.MetadataStorage,
+  metadatas: ValidationMetadata[]
+): ValidationMetadata[] {
   const constraints: ConstraintMetadata[] = (storage as any).constraintMetadatas
 
   return metadatas.map((meta) => {
