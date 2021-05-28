@@ -220,7 +220,8 @@ describe('defaultConverters', () => {
 
           isBooleanString: { type: 'string', enum: ['true', 'false'] },
           isDateString: {
-            pattern: '\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+Z?',
+            pattern:
+              '\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+Z?',
             type: 'string',
           },
           isNumberString: { pattern: '^[-+]?[0-9]+$', type: 'string' },
