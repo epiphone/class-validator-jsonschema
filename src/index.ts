@@ -126,7 +126,7 @@ function getMetadatasFromStorage(
   return populateMatadatasWithConstraints(storage, metadatas)
 }
 
-function populateMatadatasWithConstraints(
+function populateMetadatasWithConstraints(
   storage: cv.MetadataStorage,
   metadatas: ValidationMetadata[]
 ): ValidationMetadata[] {
