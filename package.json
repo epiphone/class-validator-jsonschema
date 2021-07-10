@@ -1,6 +1,6 @@
 {
   "name": "class-validator-jsonschema",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Convert class-validator-decorated classes into JSON schema",
   "keywords": [
     "class-validator",
