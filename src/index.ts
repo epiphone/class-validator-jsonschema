@@ -110,7 +110,7 @@ export function targetConstructorToSchema(
     true,
     false
   )
-  metadatas = populateMatadatasWithConstraints(storage, metadatas)
+  metadatas = populateMetadatasWithConstraints(storage, metadatas)
 
   const schemas = validationMetadataArrayToSchemas(metadatas, userOptions)
   return Object.values(schemas).length ? Object.values(schemas)[0] : {}
@@ -123,7 +123,7 @@ function getMetadatasFromStorage(
   storage: cv.MetadataStorage
 ): ValidationMetadata[] {
   const metadatas: ValidationMetadata[] = (storage as any).validationMetadatas
-  return populateMatadatasWithConstraints(storage, metadatas)
+  return populateMetadatasWithConstraints(storage, metadatas)
 }
 
 function populateMetadatasWithConstraints(
