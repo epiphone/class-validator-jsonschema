@@ -52,15 +52,17 @@ export function validationMetadataArrayToSchemas(
     )
   ).forEach(([key, ownMetas]) => {
     const target = ownMetas[0].target as Function
-    const metas = ownMetas
-      .concat(getInheritedMetadatas(target, metadatas))
-      .filter(
+
+    let metas = ownMetas.concat(getInheritedMetadatas(target, metadatas))
+    if (!options.doNotExcludeDecorator) {
+      metas = metas.filter(
         (propMeta) =>
           !(
             isExcluded(propMeta, options) ||
             isExcluded({ ...propMeta, target }, options)
           )
       )
+    }
 
     const properties: { [name: string]: SchemaObject } = {}
 
