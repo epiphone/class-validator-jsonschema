@@ -1,6 +1,6 @@
 // tslint:disable:no-submodule-imports
 import { Exclude } from 'class-transformer'
-import { Allow, IsString } from 'class-validator'
+import { Allow, IsOptional, IsString } from 'class-validator'
 import { validationMetadatasToSchemas } from '../src'
 const { defaultMetadataStorage } = require('class-transformer/cjs/storage')
 
@@ -11,6 +11,9 @@ class Parent {
   @Exclude()
   @Allow()
   inheritedInternal: unknown
+
+  @Allow()
+  excludedInUser: unknown
 }
 
 // @ts-ignore unused
@@ -21,6 +24,10 @@ class User extends Parent {
   @Exclude()
   @Allow()
   internal: unknown
+
+  @Exclude()
+  @IsOptional()
+  excludedInUser: unknown
 }
 
 describe('Exclude() decorator', () => {
@@ -32,10 +39,11 @@ describe('Exclude() decorator', () => {
     expect(schema).toEqual({
       Parent: {
         properties: {
+          excludedInUser: {},
           inherited: {},
         },
         type: 'object',
-        required: ['inherited'],
+        required: ['inherited', 'excludedInUser'],
       },
       User: {
         properties: {
