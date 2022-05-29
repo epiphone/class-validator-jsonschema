@@ -54,7 +54,13 @@ export function validationMetadataArrayToSchemas(
     const target = ownMetas[0].target as Function
     const metas = ownMetas
       .concat(getInheritedMetadatas(target, metadatas))
-      .filter((propMeta) => !isExcluded(propMeta, options))
+      .filter(
+        (propMeta) =>
+          !(
+            isExcluded(propMeta, options) ||
+            isExcluded({ ...propMeta, target }, options)
+          )
+      )
 
     const properties: { [name: string]: SchemaObject } = {}
 
