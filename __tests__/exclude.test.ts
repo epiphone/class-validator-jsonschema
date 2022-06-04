@@ -65,17 +65,20 @@ describe('Exclude() decorator', () => {
     expect(schema).toEqual({
       Parent: {
         properties: {
+          excludedInUser: {},
           inherited: {},
           inheritedInternal: {},
         },
         type: 'object',
-        required: ['inherited', 'inheritedInternal'],
+        required: ['inherited', 'inheritedInternal', 'excludedInUser'],
       },
       User: {
         properties: {
+          excludedInUser: {},
           id: { type: 'string' },
           inherited: {},
           inheritedInternal: {},
+
           internal: {},
         },
         type: 'object',
