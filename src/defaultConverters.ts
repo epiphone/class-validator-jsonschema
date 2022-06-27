@@ -126,13 +126,11 @@ export const defaultConverters: ISchemaConverters = {
     type: 'number',
   }),
   [cv.IS_POSITIVE]: {
-    exclusiveMinimum: true,
-    minimum: 0,
+    exclusiveMinimum: 0,
     type: 'number',
   },
   [cv.IS_NEGATIVE]: {
-    exclusiveMaximum: true,
-    maximum: 0,
+    exclusiveMaximum: 0,
     type: 'number',
   },
   [cv.MIN]: (meta) => ({
