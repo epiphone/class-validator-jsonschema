@@ -1,11 +1,15 @@
 import type { MetadataStorage as ClassTransformerMetadataStorage } from 'class-transformer/types/MetadataStorage' // tslint:disable-line:no-submodule-imports
-import {
-  getMetadataStorage,
-  MetadataStorage,
-  ValidatorOptions,
-} from 'class-validator'
+import { getMetadataStorage, ValidatorOptions } from 'class-validator'
+import { ConstraintMetadata } from 'class-validator/types/metadata/ConstraintMetadata'
+import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 
+import * as cv from 'class-validator'
 import { ISchemaConverters } from './defaultConverters'
+
+export type IStorage = {
+  validationMetadatas: Map<any, ValidationMetadata[]>
+  constraintMetadatas: Map<any, ConstraintMetadata[]>
+} & Omit<cv.MetadataStorage, 'validationMetadatas' | 'constraintMetadatas'>
 
 export interface IOptions extends ValidatorOptions {
   /**
@@ -27,7 +31,7 @@ export interface IOptions extends ValidatorOptions {
    * optionally defined in order to override the default storage used
    * to parse decorator metadata.
    */
-  classValidatorMetadataStorage: MetadataStorage
+  classValidatorMetadataStorage: IStorage
 
   /**
    * A prefix added to all `$ref` JSON pointers referencing other schemas.
@@ -44,7 +48,7 @@ export interface IOptions extends ValidatorOptions {
 
 export const defaultOptions: IOptions = {
   additionalConverters: {},
-  classValidatorMetadataStorage: getMetadataStorage(),
+  classValidatorMetadataStorage: (getMetadataStorage() as any) as IStorage,
   refPointerPrefix: '#/definitions/',
   schemaNameField: 'name',
 }

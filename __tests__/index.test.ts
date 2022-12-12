@@ -16,6 +16,7 @@ import {
 } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import { targetConstructorToSchema, validationMetadatasToSchemas } from '../src'
+import { IStorage } from '../src/options'
 
 class User {
   @IsString() id: string
@@ -61,8 +62,8 @@ class Post {
 describe('classValidatorConverter', () => {
   it('handles empty metadata', () => {
     const emptyStorage: any = {
-      constraintMetadatas: [],
-      validationMetadatas: [],
+      constraintMetadatas: new Map(),
+      validationMetadatas: new Map(),
     }
 
     expect(
@@ -85,13 +86,14 @@ describe('classValidatorConverter', () => {
       type: 'NON_EXISTENT_METADATA_TYPE',
       validationTypeOptions: {},
     }
-    const storage: any = {
-      constraintMetadatas: [],
-      validationMetadatas: [customMetadata],
+
+    const storage: Partial<IStorage> = {
+      constraintMetadatas: new Map(),
+      validationMetadatas: new Map([[User, [customMetadata]]]),
     }
 
     const schemas = validationMetadatasToSchemas({
-      classValidatorMetadataStorage: storage,
+      classValidatorMetadataStorage: storage as any,
     })
     expect(schemas.User.properties!.id).toEqual({ type: 'string' })
   })

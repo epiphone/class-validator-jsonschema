@@ -12,6 +12,11 @@ import { defaultOptions, IOptions } from './options'
 
 export { JSONSchema } from './decorators'
 
+type IStorage = {
+  validationMetadatas: Map<any, ValidationMetadata[]>
+  constraintMetadatas: Map<any, ConstraintMetadata[]>
+} & Omit<cv.MetadataStorage, 'validationMetadatas' | 'constraintMetadatas'>
+
 /**
  * Convert class-validator metadata into JSON Schema definitions.
  */
@@ -27,7 +32,10 @@ export function validationMetadatasToSchemas(
     options.classValidatorMetadataStorage
   )
 
-  return validationMetadataArrayToSchemas(metadatas, userOptions)
+  const flatMetadatas = ([] as ValidationMetadata[]).concat(
+    ...metadatas.values()
+  )
+  return validationMetadataArrayToSchemas(flatMetadatas, userOptions)
 }
 
 /**
@@ -126,28 +134,29 @@ export function targetConstructorToSchema(
  * Return `storage.validationMetadatas` populated with `constraintMetadatas`.
  */
 function getMetadatasFromStorage(
-  storage: cv.MetadataStorage
-): ValidationMetadata[] {
-  const metadatas: ValidationMetadata[] = (storage as any).validationMetadatas
-  return populateMetadatasWithConstraints(storage, metadatas)
+  storage: IStorage
+): Map<any, ValidationMetadata[]> {
+  const metadatas: Map<any, ValidationMetadata[]> = storage.validationMetadatas
+
+  metadatas.forEach((value, target) => {
+    metadatas.set(target, populateMetadatasWithConstraints(storage, value))
+  })
+  return metadatas
 }
 
 function populateMetadatasWithConstraints(
-  storage: cv.MetadataStorage,
+  storage: IStorage,
   metadatas: ValidationMetadata[]
 ): ValidationMetadata[] {
-  const constraints: ConstraintMetadata[] = (storage as any).constraintMetadatas
-
+  const constraints: Map<any, ConstraintMetadata[]> = (storage as any)
+    .constraintMetadatas
   return metadatas.map((meta) => {
     if (meta.constraintCls) {
-      const constraint = constraints.find(
-        (c) => c.target === meta.constraintCls
-      )
-      if (constraint) {
-        return { ...meta, type: constraint.name }
+      const constraint = constraints.get(meta.constraintCls)
+      if (constraint && constraint.length > 0) {
+        return { ...meta, type: constraint[0].name }
       }
     }
-
     return meta
   })
 }
