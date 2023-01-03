@@ -35,7 +35,7 @@ class InvalidPost {
 describe('custom validation classes', () => {
   it('uses property type if no additional converter is supplied', () => {
     const schemas = validationMetadatasToSchemas({
-      classValidatorMetadataStorage: getMetadataStorage() as unknown as IStorage,
+      classValidatorMetadataStorage: (getMetadataStorage() as unknown) as IStorage,
     })
     expect(schemas.Post).toEqual({
       properties: {
