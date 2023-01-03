@@ -136,9 +136,9 @@ export function targetConstructorToSchema(
 function getMetadatasFromStorage(
   storage: IStorage
 ): Map<any, ValidationMetadata[]> {
-  const metadatas: Map<any, ValidationMetadata[]> = storage.validationMetadatas
+  const metadatas: Map<any, ValidationMetadata[]> = new Map()
 
-  metadatas.forEach((value, target) => {
+  storage.validationMetadatas.forEach((value, target) => {
     metadatas.set(target, populateMetadatasWithConstraints(storage, value))
   })
   return metadatas
@@ -157,7 +157,7 @@ function populateMetadatasWithConstraints(
         return { ...meta, type: constraint[0].name }
       }
     }
-    return meta
+    return { ...meta }
   })
 }
 

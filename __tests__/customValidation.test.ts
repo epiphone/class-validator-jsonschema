@@ -7,6 +7,7 @@ import {
 } from 'class-validator'
 
 import { validationMetadatasToSchemas } from '../src'
+import { IStorage } from '../src/options.js'
 
 @ValidatorConstraint()
 export class CustomTextLength implements ValidatorConstraintInterface {
@@ -34,7 +35,7 @@ class InvalidPost {
 describe('custom validation classes', () => {
   it('uses property type if no additional converter is supplied', () => {
     const schemas = validationMetadatasToSchemas({
-      classValidatorMetadataStorage: getMetadataStorage(),
+      classValidatorMetadataStorage: getMetadataStorage() as unknown as IStorage,
     })
     expect(schemas.Post).toEqual({
       properties: {
