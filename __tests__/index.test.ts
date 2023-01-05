@@ -11,12 +11,12 @@ import {
   IsString,
   Length,
   MaxLength,
+  MetadataStorage,
   MinLength,
   ValidateNested,
 } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import { targetConstructorToSchema, validationMetadatasToSchemas } from '../src'
-import { IStorage } from '../src/options'
 
 class User {
   @IsString() id: string
@@ -64,6 +64,7 @@ describe('classValidatorConverter', () => {
     const emptyStorage: any = {
       constraintMetadatas: new Map(),
       validationMetadatas: new Map(),
+      getTargetValidatorConstraints: () => [],
     }
 
     expect(
@@ -87,13 +88,14 @@ describe('classValidatorConverter', () => {
       validationTypeOptions: {},
     }
 
-    const storage: Partial<IStorage> = {
+    const storage = ({
       constraintMetadatas: new Map(),
       validationMetadatas: new Map([[User, [customMetadata]]]),
-    }
+      getTargetValidatorConstraints: () => [],
+    } as unknown) as MetadataStorage
 
     const schemas = validationMetadatasToSchemas({
-      classValidatorMetadataStorage: storage as any,
+      classValidatorMetadataStorage: storage,
     })
     expect(schemas.User.properties!.id).toEqual({ type: 'string' })
   })

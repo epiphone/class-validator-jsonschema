@@ -32,10 +32,7 @@ export function validationMetadatasToSchemas(
     options.classValidatorMetadataStorage
   )
 
-  const flatMetadatas = ([] as ValidationMetadata[]).concat(
-    ...metadatas.values()
-  )
-  return validationMetadataArrayToSchemas(flatMetadatas, userOptions)
+  return validationMetadataArrayToSchemas(metadatas, userOptions)
 }
 
 /**
@@ -134,26 +131,26 @@ export function targetConstructorToSchema(
  * Return `storage.validationMetadatas` populated with `constraintMetadatas`.
  */
 function getMetadatasFromStorage(
-  storage: IStorage
-): Map<any, ValidationMetadata[]> {
-  const metadatas: Map<any, ValidationMetadata[]> = new Map()
+  storage: cv.MetadataStorage
+): ValidationMetadata[] {
+  const metadatas: ValidationMetadata[] = []
 
-  storage.validationMetadatas.forEach((value, target) => {
-    metadatas.set(target, populateMetadatasWithConstraints(storage, value))
-  })
+  for (const value of ((storage as unknown) as IStorage).validationMetadatas) {
+    metadatas.push(...populateMetadatasWithConstraints(storage, value[1]))
+  }
   return metadatas
 }
 
 function populateMetadatasWithConstraints(
-  storage: IStorage,
+  storage: cv.MetadataStorage,
   metadatas: ValidationMetadata[]
 ): ValidationMetadata[] {
-  const constraints: Map<any, ConstraintMetadata[]> = (storage as any)
-    .constraintMetadatas
   return metadatas.map((meta) => {
     if (meta.constraintCls) {
-      const constraint = constraints.get(meta.constraintCls)
-      if (constraint && constraint.length > 0) {
+      const constraint = storage.getTargetValidatorConstraints(
+        meta.constraintCls
+      )
+      if (constraint.length > 0) {
         return { ...meta, type: constraint[0].name }
       }
     }
