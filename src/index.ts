@@ -1,6 +1,5 @@
 // tslint:disable:no-submodule-imports ban-types
 import * as cv from 'class-validator'
-import { ConstraintMetadata } from 'class-validator/types/metadata/ConstraintMetadata'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import _groupBy from 'lodash.groupby'
 import _merge from 'lodash.merge'
@@ -13,9 +12,8 @@ import { defaultOptions, IOptions } from './options'
 export { JSONSchema } from './decorators'
 
 type IStorage = {
-  validationMetadatas: Map<any, ValidationMetadata[]>
-  constraintMetadatas: Map<any, ConstraintMetadata[]>
-} & Omit<cv.MetadataStorage, 'validationMetadatas' | 'constraintMetadatas'>
+  validationMetadatas: Map<Function | string, ValidationMetadata[]>
+} & Omit<cv.MetadataStorage, 'validationMetadatas'>
 
 /**
  * Convert class-validator metadata into JSON Schema definitions.
