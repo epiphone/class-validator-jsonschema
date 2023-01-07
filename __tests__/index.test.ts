@@ -88,11 +88,11 @@ describe('classValidatorConverter', () => {
       validationTypeOptions: {},
     }
 
-    const storage = ({
+    const storage = {
       constraintMetadatas: new Map(),
       validationMetadatas: new Map([[User, [customMetadata]]]),
       getTargetValidatorConstraints: () => [],
-    } as unknown) as MetadataStorage
+    } as unknown as MetadataStorage
 
     const schemas = validationMetadatasToSchemas({
       classValidatorMetadataStorage: storage,

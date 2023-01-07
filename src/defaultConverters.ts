@@ -76,17 +76,15 @@ export const defaultConverters: ISchemaConverters = {
     type: 'string',
   },
   [cv.IS_IN]: (meta) => {
-    const [head, ...rest]: SchemaObject[] = meta.constraints[0].map(
-      constraintToSchema
-    )
+    const [head, ...rest]: SchemaObject[] =
+      meta.constraints[0].map(constraintToSchema)
     if (head && rest.every((item) => item.type === head.type)) {
       return { ...head, enum: meta.constraints[0] }
     }
   },
   [cv.IS_NOT_IN]: (meta) => {
-    const [head, ...rest]: SchemaObject[] = meta.constraints[0].map(
-      constraintToSchema
-    )
+    const [head, ...rest]: SchemaObject[] =
+      meta.constraints[0].map(constraintToSchema)
     if (head && rest.every((item) => item.type === head.type)) {
       return { not: { ...head, enum: meta.constraints[0] } }
     }
