@@ -133,7 +133,7 @@ function getMetadatasFromStorage(
 ): ValidationMetadata[] {
   const metadatas: ValidationMetadata[] = []
 
-  for (const value of ((storage as unknown) as IStorage).validationMetadatas) {
+  for (const value of (storage as unknown as IStorage).validationMetadatas) {
     metadatas.push(...populateMetadatasWithConstraints(storage, value[1]))
   }
   return metadatas
