@@ -1,6 +1,5 @@
 // tslint:disable:no-submodule-imports ban-types
 import * as cv from 'class-validator'
-import { ConstraintMetadata } from 'class-validator/types/metadata/ConstraintMetadata'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import _groupBy from 'lodash.groupby'
 import _merge from 'lodash.merge'
@@ -11,6 +10,10 @@ import { defaultConverters } from './defaultConverters'
 import { defaultOptions, IOptions } from './options'
 
 export { JSONSchema } from './decorators'
+
+type IStorage = {
+  validationMetadatas: Map<Function | string, ValidationMetadata[]>
+} & Omit<cv.MetadataStorage, 'validationMetadatas'>
 
 /**
  * Convert class-validator metadata into JSON Schema definitions.
@@ -128,27 +131,28 @@ export function targetConstructorToSchema(
 function getMetadatasFromStorage(
   storage: cv.MetadataStorage
 ): ValidationMetadata[] {
-  const metadatas: ValidationMetadata[] = (storage as any).validationMetadatas
-  return populateMetadatasWithConstraints(storage, metadatas)
+  const metadatas: ValidationMetadata[] = []
+
+  for (const value of ((storage as unknown) as IStorage).validationMetadatas) {
+    metadatas.push(...populateMetadatasWithConstraints(storage, value[1]))
+  }
+  return metadatas
 }
 
 function populateMetadatasWithConstraints(
   storage: cv.MetadataStorage,
   metadatas: ValidationMetadata[]
 ): ValidationMetadata[] {
-  const constraints: ConstraintMetadata[] = (storage as any).constraintMetadatas
-
   return metadatas.map((meta) => {
     if (meta.constraintCls) {
-      const constraint = constraints.find(
-        (c) => c.target === meta.constraintCls
+      const constraint = storage.getTargetValidatorConstraints(
+        meta.constraintCls
       )
-      if (constraint) {
-        return { ...meta, type: constraint.name }
+      if (constraint.length > 0) {
+        return { ...meta, type: constraint[0].name }
       }
     }
-
-    return meta
+    return { ...meta }
   })
 }
 

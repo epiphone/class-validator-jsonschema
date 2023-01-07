@@ -11,6 +11,7 @@ import {
   IsString,
   Length,
   MaxLength,
+  MetadataStorage,
   MinLength,
   ValidateNested,
 } from 'class-validator'
@@ -61,8 +62,9 @@ class Post {
 describe('classValidatorConverter', () => {
   it('handles empty metadata', () => {
     const emptyStorage: any = {
-      constraintMetadatas: [],
-      validationMetadatas: [],
+      constraintMetadatas: new Map(),
+      validationMetadatas: new Map(),
+      getTargetValidatorConstraints: () => [],
     }
 
     expect(
@@ -85,10 +87,12 @@ describe('classValidatorConverter', () => {
       type: 'NON_EXISTENT_METADATA_TYPE',
       validationTypeOptions: {},
     }
-    const storage: any = {
-      constraintMetadatas: [],
-      validationMetadatas: [customMetadata],
-    }
+
+    const storage = ({
+      constraintMetadatas: new Map(),
+      validationMetadatas: new Map([[User, [customMetadata]]]),
+      getTargetValidatorConstraints: () => [],
+    } as unknown) as MetadataStorage
 
     const schemas = validationMetadatasToSchemas({
       classValidatorMetadataStorage: storage,
