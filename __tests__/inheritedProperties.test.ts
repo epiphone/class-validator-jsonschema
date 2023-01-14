@@ -17,7 +17,7 @@ import { JSONSchema, validationMetadatasToSchemas } from '../src'
 
 @JSONSchema({
   description: 'Contains email, password and phone',
-  summary: 'Base object',
+  title: 'Base object',
 })
 class BaseContent {
   @JSONSchema({
@@ -29,7 +29,7 @@ class BaseContent {
 
   @JSONSchema({
     description: 'Password field',
-    summary: 'Password',
+    title: 'Password',
   })
   @IsString()
   @IsOptional()
@@ -41,7 +41,7 @@ class BaseContent {
 }
 
 @JSONSchema({
-  summary: 'User object',
+  title: 'User object',
 })
 // @ts-ignore: not referenced
 class User extends BaseContent {
@@ -57,7 +57,7 @@ class User extends BaseContent {
   password: string
 
   @JSONSchema({
-    summary: 'Mobile phone number',
+    title: 'Mobile phone number',
   })
   @IsOptional()
   phone: string
@@ -82,7 +82,7 @@ describe('Inheriting validation decorators', () => {
         },
         password: {
           description: 'Password field',
-          summary: 'Password',
+          title: 'Password',
           type: 'string',
         },
         phone: {
@@ -92,7 +92,7 @@ describe('Inheriting validation decorators', () => {
         },
       },
       required: ['email', 'phone'],
-      summary: 'Base object',
+      title: 'Base object',
       type: 'object',
     })
 
@@ -117,7 +117,7 @@ describe('Inheriting validation decorators', () => {
         },
         phone: {
           format: 'mobile-phone',
-          summary: 'Mobile phone number',
+          title: 'Mobile phone number',
           type: 'string',
           not: { type: 'null' },
         },
@@ -127,7 +127,7 @@ describe('Inheriting validation decorators', () => {
         },
       },
       required: ['name', 'welcome', 'email'],
-      summary: 'User object',
+      title: 'User object',
       type: 'object',
     })
   })

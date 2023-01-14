@@ -3,7 +3,7 @@ import * as cv from 'class-validator'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import _groupBy from 'lodash.groupby'
 import _merge from 'lodash.merge'
-import { SchemaObject } from 'openapi3-ts'
+import type { ReferenceObject, SchemaObject } from 'openapi3-ts'
 
 import { getMetadataSchema } from './decorators'
 import { defaultConverters } from './defaultConverters'
@@ -65,7 +65,7 @@ export function validationMetadataArrayToSchemas(
           )
       )
 
-    const properties: { [name: string]: SchemaObject } = {}
+    const properties: { [name: string]: ReferenceObject | SchemaObject } = {}
 
     Object.entries(_groupBy(metas, 'propertyName')).forEach(
       ([propName, propMetas]) => {
@@ -94,7 +94,7 @@ export function validationMetadataArrayToSchemas(
       target,
       options,
       target.name
-    )
+    ) as SchemaObject
   })
 
   return schemas
@@ -241,7 +241,7 @@ function applyDecorators(
   target: Function,
   options: IOptions,
   propertyName: string
-): SchemaObject {
+): ReferenceObject | SchemaObject {
   const additionalSchema = getMetadataSchema(target.prototype, propertyName)
   return typeof additionalSchema === 'function'
     ? additionalSchema(schema, options)

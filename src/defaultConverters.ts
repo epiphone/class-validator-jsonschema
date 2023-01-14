@@ -1,7 +1,7 @@
 // tslint:disable:no-submodule-imports
 import * as cv from 'class-validator'
-import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
-import { SchemaObject } from 'openapi3-ts'
+import type { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
+import type { ReferenceObject, SchemaObject } from 'openapi3-ts'
 import 'reflect-metadata'
 
 import { IOptions } from './options'
@@ -13,7 +13,7 @@ export interface ISchemaConverters {
 export type SchemaConverter = (
   meta: ValidationMetadata,
   options: IOptions
-) => SchemaObject | void
+) => ReferenceObject | SchemaObject | void
 
 export const defaultConverters: ISchemaConverters = {
   [cv.ValidationTypes.CUSTOM_VALIDATION]: (meta, options) => {
@@ -126,13 +126,11 @@ export const defaultConverters: ISchemaConverters = {
     type: 'number',
   }),
   [cv.IS_POSITIVE]: {
-    exclusiveMinimum: true,
-    minimum: 0,
+    exclusiveMinimum: 0,
     type: 'number',
   },
   [cv.IS_NEGATIVE]: {
-    exclusiveMaximum: true,
-    maximum: 0,
+    exclusiveMaximum: 0,
     type: 'number',
   },
   [cv.MIN]: (meta) => ({
@@ -381,7 +379,10 @@ function constraintToSchema(primitive: any): SchemaObject | void {
   }
 }
 
-function targetToSchema(type: any, options: IOptions): SchemaObject | void {
+function targetToSchema(
+  type: any,
+  options: IOptions
+): ReferenceObject | SchemaObject | void {
   if (typeof type === 'function') {
     if (
       type.prototype === String.prototype ||

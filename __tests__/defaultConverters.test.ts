@@ -198,8 +198,8 @@ describe('defaultConverters', () => {
 
           isDivisibleByInt: { multipleOf: 4, type: 'number' },
           isDivisibleByFloat: { multipleOf: 1.1, type: 'number' },
-          isPositive: { type: 'number', minimum: 0, exclusiveMinimum: true },
-          isNegative: { type: 'number', maximum: 0, exclusiveMaximum: true },
+          isPositive: { type: 'number', exclusiveMinimum: 0 },
+          isNegative: { type: 'number', exclusiveMaximum: 0 },
           max: { type: 'number', maximum: 10 },
           min: { type: 'number', minimum: 1 },
 
