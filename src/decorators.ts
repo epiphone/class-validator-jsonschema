@@ -1,5 +1,5 @@
 // tslint:disable:ban-types
-import { SchemaObject } from 'openapi3-ts'
+import type { ReferenceObject, SchemaObject } from 'openapi3-ts'
 import 'reflect-metadata'
 
 import { IOptions } from './options'
@@ -12,8 +12,12 @@ const SCHEMA_KEY = Symbol('class-validator-jsonschema:JSONSchema')
  * options, returning an updated schema.
  */
 export type DecoratorSchema =
+  | ReferenceObject
   | SchemaObject
-  | ((source: SchemaObject, options: IOptions) => SchemaObject)
+  | ((
+      source: SchemaObject,
+      options: IOptions
+    ) => ReferenceObject | SchemaObject)
 
 /**
  * Supplement class or property with additional JSON Schema keywords.
