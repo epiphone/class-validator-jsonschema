@@ -5,7 +5,7 @@ import {
 } from 'class-validator'
 
 import { validationMetadatasToSchemas } from '../src'
-import { NestedType as NestedType } from '../src/decorators'
+import { NestedType } from '../src/decorators'
 
 class SubnestedClass {
     @IsString()
