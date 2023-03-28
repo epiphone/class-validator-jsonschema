@@ -207,23 +207,37 @@ users: UserClass[]
 user: Promise<UserClass>
 ```
 
-would resolve to classes `Array` and `Promise` in JSON Schema. To work around this limitation we can use `@Type` from `class-transformer` to explicitly define the nested property's inner type:
+would resolve to classes `Array` and `Promise` in JSON Schema. To work around this limitation we can use:
 
-```typescript
-import { Type } from 'class-transformer'
-import { validationMetadatasToSchemas } from 'class-validator-jsonschema'
-const { defaultMetadataStorage } = require('class-transformer/cjs/storage') // See https://github.com/typestack/class-transformer/issues/563 for alternatives
+* Option 1: `@NestedType`decorator
+  ```typescript
+  @ValidateNested()
+  @NestedType(() => NestedClass)
+  nestedTypeWithObject: NestedClass | null | undefined;
 
-class User {
   @ValidateNested({ each: true })
-  @Type(() => BlogPost) // 1) Explicitly define the nested property type
-  blogPosts: BlogPost[]
-}
+  @NestedType(() => NestedClass)
+  nestedTypeWithArray: NestedClass[]
+  ```
 
-const schemas = validationMetadatasToSchemas({
-  classTransformerMetadataStorage: defaultMetadataStorage, // 2) Define class-transformer metadata in options
-})
-```
+* Option 2: `@Type` from `class-transformer`
+  When using class-transformer this decorator can be reused to explicitly define the nested property's inner type:
+
+  "```typescript
+  import { Type } from 'class-transformer'
+  import { validationMetadatasToSchemas } from 'class-validator-jsonschema'
+  const { defaultMetadataStorage } = require('class-transformer/cjs/storage') // See https://github.com/typestack/class-transformer/issues/563 for alternatives
+
+  class User {
+    @ValidateNested({ each: true })
+    @Type(() => BlogPost) // 1) Explicitly define the nested property type
+    blogPosts: BlogPost[]
+  }
+
+  const schemas = validationMetadatasToSchemas({
+    classTransformerMetadataStorage: defaultMetadataStorage, // 2) Define class-transformer metadata in options
+  })
+  ```
 
 Note also how the `classTransformerMetadataStorage` option has to be defined for `@Type` decorator to take effect.
 

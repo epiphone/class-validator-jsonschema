@@ -5,6 +5,7 @@ import 'reflect-metadata'
 import { IOptions } from './options'
 
 const SCHEMA_KEY = Symbol('class-validator-jsonschema:JSONSchema')
+const NESTED_TYPE_KEY = Symbol('class-validator-jsonschema:NestedType')
 
 /**
  * Either a plain JSON Schema object that gets merged into the existing schema,
@@ -15,9 +16,22 @@ export type DecoratorSchema =
   | ReferenceObject
   | SchemaObject
   | ((
-      source: SchemaObject,
-      options: IOptions
-    ) => ReferenceObject | SchemaObject)
+    source: SchemaObject,
+    options: IOptions
+  ) => ReferenceObject | SchemaObject)
+
+/**
+ * Allows decorate an attribute to specify its type in order to be used in the
+ * conversion to the open api schema
+ * 
+ * @param typeFunction function retrieving the constructor of the decorated attribute
+ */
+
+export function NestedType(typeFunction: () => Function): PropertyDecorator {
+  return function (target: object, key: string) {
+    setMetadataNestedSchema(typeFunction, target.constructor, key)
+  }
+}
 
 /**
  * Supplement class or property with additional JSON Schema keywords.
@@ -57,4 +71,25 @@ function setMetadataSchema(
   key: string
 ) {
   return Reflect.defineMetadata(SCHEMA_KEY, value, target, key)
+}
+
+/**
+ * Retrieves a function to get the constructor of an attribute decorated with NestedType
+ */
+export function getMetadataNestedType(
+  target: object | Function,
+  key: string
+): () => Function | undefined {
+  return Reflect.getMetadata(NESTED_TYPE_KEY, target, key) || undefined
+}
+
+/**
+ * Stores in the metadata a function to get the constructor of an attribute decorated with NestedType
+ */
+function setMetadataNestedSchema(
+  value: () => Function,
+  target: object | Function,
+  key: string
+) {
+  return Reflect.defineMetadata(NESTED_TYPE_KEY, value, target, key)
 }

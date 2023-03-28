@@ -9,7 +9,7 @@ import { getMetadataSchema } from './decorators'
 import { defaultConverters } from './defaultConverters'
 import { defaultOptions, IOptions } from './options'
 
-export { JSONSchema } from './decorators'
+export { JSONSchema, NestedType } from './decorators'
 
 type IStorage = {
   validationMetadatas: Map<Function | string, ValidationMetadata[]>

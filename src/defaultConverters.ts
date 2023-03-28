@@ -2,6 +2,7 @@
 import * as cv from 'class-validator'
 import type { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import type { ReferenceObject, SchemaObject } from 'openapi3-ts'
+import { getMetadataNestedType } from './decorators'
 import 'reflect-metadata'
 
 import { IOptions } from './options'
@@ -24,6 +25,11 @@ export const defaultConverters: ISchemaConverters = {
   },
   [cv.ValidationTypes.NESTED_VALIDATION]: (meta, options) => {
     if (typeof meta.target === 'function') {
+      const nestedSchemaTypeFunction = getMetadataNestedType(meta.target, meta.propertyName)
+      if (nestedSchemaTypeFunction) {
+        return targetToSchema(nestedSchemaTypeFunction(), options)
+      }
+
       const typeMeta = options.classTransformerMetadataStorage
         ? options.classTransformerMetadataStorage.findTypeMetadata(
             meta.target,
