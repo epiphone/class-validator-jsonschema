@@ -101,6 +101,26 @@ export function validationMetadataArrayToSchemas(
 }
 
 /**
+ * Search for the JSON Schema definition from child class up to the
+ * top parent class until empty function name is found.
+ */
+function getTargetConstructorSchema(
+  schemas: Record<string, SchemaObject>,
+  targetConstructor: Function
+): SchemaObject {
+  if (!targetConstructor.name) {
+    return {}
+  } else if (schemas[targetConstructor.name]) {
+    return schemas[targetConstructor.name]
+  } else {
+    return getTargetConstructorSchema(
+      schemas,
+      Object.getPrototypeOf(targetConstructor)
+    )
+  }
+}
+
+/**
  * Generate JSON Schema definitions from the target object constructor.
  */
 export function targetConstructorToSchema(
@@ -122,7 +142,7 @@ export function targetConstructorToSchema(
   metadatas = populateMetadatasWithConstraints(storage, metadatas)
 
   const schemas = validationMetadataArrayToSchemas(metadatas, userOptions)
-  return Object.values(schemas).length ? Object.values(schemas)[0] : {}
+  return getTargetConstructorSchema(schemas, targetConstructor)
 }
 
 /**
