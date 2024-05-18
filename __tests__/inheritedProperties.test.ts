@@ -13,7 +13,11 @@ import {
 } from 'class-validator'
 import _get from 'lodash.get'
 
-import { JSONSchema, validationMetadatasToSchemas } from '../src'
+import {
+  JSONSchema,
+  targetConstructorToSchema,
+  validationMetadatasToSchemas,
+} from '../src'
 
 @JSONSchema({
   description: 'Contains email, password and phone',
@@ -43,7 +47,6 @@ class BaseContent {
 @JSONSchema({
   title: 'User object',
 })
-// @ts-ignore: not referenced
 class User extends BaseContent {
   @MinLength(10)
   @MaxLength(20)
@@ -64,6 +67,9 @@ class User extends BaseContent {
 
   @Contains('hello') welcome: string
 }
+
+// @ts-ignore: not referenced
+class Admin extends User {}
 
 const metadatas = _get(getFromContainer(MetadataStorage), 'validationMetadatas')
 
@@ -139,5 +145,44 @@ describe('Inheriting validation decorators', () => {
 
     expect(schemas.BaseContent.required).toEqual(['email', 'phone'])
     expect(schemas.User.required).toEqual(['password', 'email'])
+  })
+
+  it('inherits and merges validation decorators from multiple parent classes and empty child class', () => {
+    const schema = targetConstructorToSchema(Admin)
+
+    expect(schema).toEqual({
+      properties: {
+        email: {
+          default: 'some@email.com',
+          format: 'email',
+          type: 'string',
+          not: { type: 'null' },
+        },
+        name: {
+          maxLength: 20,
+          minLength: 10,
+          type: 'string',
+        },
+        password: {
+          description: 'Password field - required!',
+          minLength: 20,
+          type: 'string',
+          not: { type: 'null' },
+        },
+        phone: {
+          format: 'mobile-phone',
+          title: 'Mobile phone number',
+          type: 'string',
+          not: { type: 'null' },
+        },
+        welcome: {
+          pattern: 'hello',
+          type: 'string',
+        },
+      },
+      required: ['name', 'welcome', 'email'],
+      title: 'User object',
+      type: 'object',
+    })
   })
 })
