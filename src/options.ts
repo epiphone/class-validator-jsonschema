@@ -40,6 +40,12 @@ export interface IOptions extends ValidatorOptions {
    * Defaults to `name`, i.e., class name.
    */
   schemaNameField: string
+
+  /**
+   * Characters that are considered symbols n passwords.
+   * Defaults to the symbol character set of `validator.js`.
+   */
+  passwordSymbols: string
 }
 
 export const defaultOptions: IOptions = {
@@ -47,4 +53,5 @@ export const defaultOptions: IOptions = {
   classValidatorMetadataStorage: getMetadataStorage(),
   refPointerPrefix: '#/definitions/',
   schemaNameField: 'name',
+  passwordSymbols: '-#!$@£%^&*()_+|~=`{}\\[\\]:";\'<>?,.\\/ ',
 }
