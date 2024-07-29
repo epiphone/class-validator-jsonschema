@@ -148,13 +148,16 @@ export const defaultConverters: ISchemaConverters = {
       { format: 'date-time', type: 'string' },
     ],
   }),
-  [cv.MAX_DATE]: (meta) => ({
-    description: `Before ${meta.constraints[0].toJSON()}`,
-    oneOf: [
-      { format: 'date', type: 'string' },
-      { format: 'date-time', type: 'string' },
-    ],
-  }),
+  [cv.MAX_DATE]: (meta) => {
+    const description= typeof meta.constraints[0] === 'function' ? `Before a date computed dynamically` : `Before ${meta.constraints[0]}`;
+    return {
+      description,
+      oneOf: [
+        { format: 'date', type: 'string' },
+        { format: 'date-time', type: 'string' },
+      ],
+    }
+  },
   [cv.IS_BOOLEAN_STRING]: {
     enum: ['true', 'false'],
     type: 'string',
