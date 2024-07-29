@@ -26,9 +26,9 @@ export const defaultConverters: ISchemaConverters = {
     if (typeof meta.target === 'function') {
       const typeMeta = options.classTransformerMetadataStorage
         ? options.classTransformerMetadataStorage.findTypeMetadata(
-            meta.target,
-            meta.propertyName
-          )
+          meta.target,
+          meta.propertyName
+        )
         : null
       const childType = typeMeta
         ? typeMeta.typeFunction()
@@ -141,15 +141,18 @@ export const defaultConverters: ISchemaConverters = {
     maximum: meta.constraints[0],
     type: 'number',
   }),
-  [cv.MIN_DATE]: (meta) => ({
-    description: `After ${meta.constraints[0].toJSON()}`,
-    oneOf: [
-      { format: 'date', type: 'string' },
-      { format: 'date-time', type: 'string' },
-    ],
-  }),
+  [cv.MIN_DATE]: (meta) => {
+    const description = typeof meta.constraints[0] === 'function' ? `After a date computed dynamically` : `After ${meta.constraints[0]}`;
+    return {
+      description,
+      oneOf: [
+        { format: 'date', type: 'string' },
+        { format: 'date-time', type: 'string' },
+      ],
+    }
+  },
   [cv.MAX_DATE]: (meta) => {
-    const description= typeof meta.constraints[0] === 'function' ? `Before a date computed dynamically` : `Before ${meta.constraints[0]}`;
+    const description = typeof meta.constraints[0] === 'function' ? `Before a date computed dynamically` : `Before ${meta.constraints[0]}`;
     return {
       description,
       oneOf: [
