@@ -40,6 +40,12 @@ export interface IOptions extends ValidatorOptions {
    * Defaults to `name`, i.e., class name.
    */
   schemaNameField: string
+
+  /**
+   * Do not exclude field which decorate with `Exclude` decorator.
+   * Defaults to `false`
+   */
+  doNotExcludeDecorator: boolean
 }
 
 export const defaultOptions: IOptions = {
@@ -47,4 +53,5 @@ export const defaultOptions: IOptions = {
   classValidatorMetadataStorage: getMetadataStorage(),
   refPointerPrefix: '#/definitions/',
   schemaNameField: 'name',
+  doNotExcludeDecorator: false,
 }
