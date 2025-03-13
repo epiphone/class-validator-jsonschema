@@ -365,6 +365,47 @@ export const defaultConverters: ISchemaConverters = {
     type: 'array',
     uniqueItems: true,
   },
+  [cv.IS_STRONG_PASSWORD]: (meta, options) => {
+    const {
+      minLength = 8,
+      minLowercase = 1,
+      minUppercase = 1,
+      minNumbers = 1,
+      minSymbols = 1,
+    }: cv.IsStrongPasswordOptions = meta.constraints[0] ?? {}
+
+    const requireChars = (chars: string, amount: number): string => {
+      const charMatcher = chars === '*' ? '' : `*(?:[^${chars}]*[${chars}])`
+
+      return `(?=.${charMatcher}{${amount}})`
+    }
+
+    const requirements = (
+      [
+        ['*', minLength],
+        ['a-z', minLowercase],
+        ['A-Z', minUppercase],
+        ['0-9', minNumbers],
+        [options.passwordSymbols, minSymbols],
+      ] as const
+    )
+      .map(([chars, amount]) => {
+        if (!amount) {
+          return
+        }
+
+        return requireChars(chars, amount)
+      })
+      .filter(Boolean)
+      .join('')
+
+    const pattern = `^${requirements}.*$`
+
+    return {
+      type: 'string',
+      pattern,
+    }
+  },
 }
 
 function getPropType(target: object, property: string) {
