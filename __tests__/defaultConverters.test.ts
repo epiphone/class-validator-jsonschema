@@ -5,12 +5,14 @@ import _get from 'lodash.get'
 import { validationMetadatasToSchemas } from '../src'
 
 class Post {}
+
 class Comment {}
 
 enum PostType {
   Public,
   Private,
 }
+
 enum Role {
   Anonymous = 'anonymous',
   User = 'user',
@@ -137,6 +139,17 @@ class User {
   @validator.ArrayMaxSize(10)
   arrayMaxSize: any[]
   @validator.ArrayUnique() arrayUnique: any[]
+
+  @validator.IsStrongPassword()
+  password!: string
+  @validator.IsStrongPassword({
+    minLength: 16,
+    minSymbols: 1,
+    minLowercase: 2,
+    minUppercase: 3,
+    minNumbers: 4,
+  })
+  customPassword!: string
 }
 
 const metadata = _get(
@@ -326,6 +339,16 @@ describe('defaultConverters', () => {
           arrayMinSize: { type: 'array', items: {}, minItems: 1 },
           arrayMaxSize: { type: 'array', items: {}, maxItems: 10 },
           arrayUnique: { type: 'array', items: {}, uniqueItems: true },
+          password: {
+            type: 'string',
+            pattern:
+              '^(?=.{8})(?=.*(?:[^a-z]*[a-z]){1})(?=.*(?:[^A-Z]*[A-Z]){1})(?=.*(?:[^0-9]*[0-9]){1})(?=.*(?:[^-#!$@£%^&*()_+|~=`{}\\[\\]:";\'<>?,.\\/ ]*[-#!$@£%^&*()_+|~=`{}\\[\\]:";\'<>?,.\\/ ]){1}).*$',
+          },
+          customPassword: {
+            pattern:
+              '^(?=.{16})(?=.*(?:[^a-z]*[a-z]){2})(?=.*(?:[^A-Z]*[A-Z]){3})(?=.*(?:[^0-9]*[0-9]){4})(?=.*(?:[^-#!$@£%^&*()_+|~=`{}\\[\\]:";\'<>?,.\\/ ]*[-#!$@£%^&*()_+|~=`{}\\[\\]:";\'<>?,.\\/ ]){1}).*$',
+            type: 'string',
+          },
         },
         required: expect.any(Array),
         type: 'object',
