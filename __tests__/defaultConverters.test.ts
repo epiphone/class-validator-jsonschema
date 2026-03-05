@@ -1,6 +1,5 @@
 // tslint:disable:object-literal-sort-keys
 import * as validator from 'class-validator'
-import _get from 'lodash.get'
 
 import { validationMetadatasToSchemas } from '../src'
 
@@ -139,10 +138,9 @@ class User {
   @validator.ArrayUnique() arrayUnique: any[]
 }
 
-const metadata = _get(
-  validator.getFromContainer(validator.MetadataStorage),
+const metadata = validator.getFromContainer(validator.MetadataStorage)?.[
   'validationMetadatas'
-)
+]
 const schemas = validationMetadatasToSchemas(metadata)
 
 describe('defaultConverters', () => {
@@ -161,7 +159,6 @@ describe('defaultConverters', () => {
             anyOf: [
               { type: 'string', enum: [''] },
               {
-                nullable: true,
                 not: {
                   anyOf: [
                     { type: 'string' },

@@ -1,5 +1,5 @@
-// tslint:disable:ban-types
-import type { ReferenceObject, SchemaObject } from 'openapi3-ts'
+// tslint:disable:ban-types no-submodule-imports
+import type { ReferenceObject, SchemaObject } from 'openapi3-ts/oas31'
 import 'reflect-metadata'
 
 import { IOptions } from './options'
@@ -16,7 +16,7 @@ export type DecoratorSchema =
   | SchemaObject
   | ((
       source: SchemaObject,
-      options: IOptions
+      options: IOptions,
     ) => ReferenceObject | SchemaObject)
 
 /**
@@ -43,7 +43,7 @@ export function JSONSchema(schema: DecoratorSchema) {
  */
 export function getMetadataSchema(
   target: object | Function,
-  key: string
+  key: string,
 ): DecoratorSchema {
   return Reflect.getMetadata(SCHEMA_KEY, target.constructor, key) || {}
 }
@@ -54,7 +54,7 @@ export function getMetadataSchema(
 function setMetadataSchema(
   value: DecoratorSchema,
   target: object | Function,
-  key: string
+  key: string,
 ) {
   return Reflect.defineMetadata(SCHEMA_KEY, value, target, key)
 }

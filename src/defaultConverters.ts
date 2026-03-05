@@ -1,7 +1,7 @@
 // tslint:disable:no-submodule-imports
 import * as cv from 'class-validator'
 import type { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
-import type { ReferenceObject, SchemaObject } from 'openapi3-ts'
+import type { ReferenceObject, SchemaObject } from 'openapi3-ts/oas31'
 import 'reflect-metadata'
 
 import { IOptions } from './options'
@@ -12,7 +12,7 @@ export interface ISchemaConverters {
 
 export type SchemaConverter = (
   meta: ValidationMetadata,
-  options: IOptions
+  options: IOptions,
 ) => ReferenceObject | SchemaObject | void
 
 export const defaultConverters: ISchemaConverters = {
@@ -27,7 +27,7 @@ export const defaultConverters: ISchemaConverters = {
       const typeMeta = options.classTransformerMetadataStorage
         ? options.classTransformerMetadataStorage.findTypeMetadata(
             meta.target,
-            meta.propertyName
+            meta.propertyName,
           )
         : null
       const childType = typeMeta
@@ -67,7 +67,6 @@ export const defaultConverters: ISchemaConverters = {
             { type: 'object' },
           ],
         },
-        nullable: true,
       },
     ],
   },
@@ -371,6 +370,7 @@ function getPropType(target: object, property: string) {
   return Reflect.getMetadata('design:type', target, property)
 }
 
+// tslint:disable:no-any
 function constraintToSchema(primitive: any): SchemaObject | void {
   const primitives = ['string', 'number', 'boolean']
   const type = typeof primitive
@@ -381,7 +381,7 @@ function constraintToSchema(primitive: any): SchemaObject | void {
 
 function targetToSchema(
   type: any,
-  options: IOptions
+  options: IOptions,
 ): ReferenceObject | SchemaObject | void {
   if (typeof type === 'function') {
     if (

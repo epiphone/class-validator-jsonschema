@@ -10,7 +10,6 @@ import {
   MetadataStorage,
   ValidateNested,
 } from 'class-validator'
-import _get from 'lodash.get'
 
 import { validationMetadatasToSchemas } from '../src'
 
@@ -33,7 +32,7 @@ class Post {
   user: User
 }
 
-const metadata = _get(getFromContainer(MetadataStorage), 'validationMetadatas')
+const metadata = getFromContainer(MetadataStorage)?.['validationMetadatas']
 const defaultSchemas = validationMetadatasToSchemas(metadata)
 
 describe('options', () => {
@@ -73,8 +72,7 @@ describe('options', () => {
           type: 'string',
         },
         [MAX_LENGTH]: (meta) => ({
-          exclusiveMaximum: true,
-          maxLength: meta.constraints[0] + 1,
+          exclusiveMaximum: meta.constraints[0] + 1,
           type: 'string',
         }),
       },
@@ -88,7 +86,7 @@ describe('options', () => {
         not: { type: 'null' },
       },
       tags: {
-        items: { exclusiveMaximum: true, type: 'string', maxLength: 21 },
+        items: { exclusiveMaximum: 21, type: 'string' },
         type: 'array',
       },
     })

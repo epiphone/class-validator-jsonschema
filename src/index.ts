@@ -3,7 +3,7 @@ import * as cv from 'class-validator'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
 import _groupBy from 'lodash.groupby'
 import _merge from 'lodash.merge'
-import type { ReferenceObject, SchemaObject } from 'openapi3-ts'
+import type { ReferenceObject, SchemaObject } from 'openapi3-ts/oas31'
 
 import { getMetadataSchema } from './decorators'
 import { defaultConverters } from './defaultConverters'
@@ -20,7 +20,7 @@ type IStorage = {
  * Convert class-validator metadata into JSON Schema definitions.
  */
 export function validationMetadatasToSchemas(
-  userOptions?: Partial<IOptions>
+  userOptions?: Partial<IOptions>,
 ): Record<string, SchemaObject> {
   const options: IOptions = {
     ...defaultOptions,
@@ -28,7 +28,7 @@ export function validationMetadatasToSchemas(
   }
 
   const metadatas = getMetadatasFromStorage(
-    options.classValidatorMetadataStorage
+    options.classValidatorMetadataStorage,
   )
 
   return validationMetadataArrayToSchemas(metadatas, userOptions)
@@ -39,7 +39,7 @@ export function validationMetadatasToSchemas(
  */
 export function validationMetadataArrayToSchemas(
   metadatas: ValidationMetadata[],
-  userOptions?: Partial<IOptions>
+  userOptions?: Partial<IOptions>,
 ): Record<string, SchemaObject> {
   const options: IOptions = {
     ...defaultOptions,
@@ -52,8 +52,8 @@ export function validationMetadataArrayToSchemas(
       metadatas,
       ({ target }) =>
         target[options.schemaNameField as keyof typeof target] ??
-        (target as Function).name
-    )
+        (target as Function).name,
+    ),
   ).forEach(([key, ownMetas]) => {
     const target = ownMetas[0].target as Function
     const metas = ownMetas
@@ -63,7 +63,7 @@ export function validationMetadataArrayToSchemas(
           !(
             isExcluded(propMeta, options) ||
             isExcluded({ ...propMeta, target }, options)
-          )
+          ),
       )
       .map((propMeta) => {
         /**
@@ -72,11 +72,11 @@ export function validationMetadataArrayToSchemas(
          */
         const exposeMetadata =
           userOptions?.classTransformerMetadataStorage?.getExposedMetadatas(
-            propMeta.target as any
+            propMeta.target as Function,
           )
 
         const ctMetaForField = exposeMetadata?.find(
-          (meta: ExposeMetadata) => meta.propertyName === propMeta.propertyName
+          (meta: ExposeMetadata) => meta.propertyName === propMeta.propertyName,
         )
 
         if (ctMetaForField?.options.name) {
@@ -95,9 +95,9 @@ export function validationMetadataArrayToSchemas(
           schema,
           target,
           options,
-          propName
+          propName,
         )
-      }
+      },
     )
 
     const definitionSchema: SchemaObject = {
@@ -114,7 +114,7 @@ export function validationMetadataArrayToSchemas(
       definitionSchema,
       target,
       options,
-      target.name
+      target.name,
     ) as SchemaObject
   })
 
@@ -127,7 +127,7 @@ export function validationMetadataArrayToSchemas(
  */
 function getTargetConstructorSchema(
   schemas: Record<string, SchemaObject>,
-  targetConstructor: Function
+  targetConstructor: Function,
 ): SchemaObject {
   if (!targetConstructor.name) {
     return {}
@@ -136,7 +136,7 @@ function getTargetConstructorSchema(
   } else {
     return getTargetConstructorSchema(
       schemas,
-      Object.getPrototypeOf(targetConstructor)
+      Object.getPrototypeOf(targetConstructor),
     )
   }
 }
@@ -146,7 +146,7 @@ function getTargetConstructorSchema(
  */
 export function targetConstructorToSchema(
   targetConstructor: Function,
-  userOptions?: Partial<IOptions>
+  userOptions?: Partial<IOptions>,
 ): SchemaObject {
   const options: IOptions = {
     ...defaultOptions,
@@ -158,7 +158,7 @@ export function targetConstructorToSchema(
     targetConstructor,
     '',
     true,
-    false
+    false,
   )
   metadatas = populateMetadatasWithConstraints(storage, metadatas)
 
@@ -170,7 +170,7 @@ export function targetConstructorToSchema(
  * Return `storage.validationMetadatas` populated with `constraintMetadatas`.
  */
 function getMetadatasFromStorage(
-  storage: cv.MetadataStorage
+  storage: cv.MetadataStorage,
 ): ValidationMetadata[] {
   const metadatas: ValidationMetadata[] = []
 
@@ -182,12 +182,12 @@ function getMetadatasFromStorage(
 
 function populateMetadatasWithConstraints(
   storage: cv.MetadataStorage,
-  metadatas: ValidationMetadata[]
+  metadatas: ValidationMetadata[],
 ): ValidationMetadata[] {
   return metadatas.map((meta) => {
     if (meta.constraintCls) {
       const constraint = storage.getTargetValidatorConstraints(
-        meta.constraintCls
+        meta.constraintCls,
       )
       if (constraint.length > 0) {
         return { ...meta, type: constraint[0].name }
@@ -208,7 +208,7 @@ function populateMetadatasWithConstraints(
  */
 function getInheritedMetadatas(
   target: Function,
-  metadatas: ValidationMetadata[]
+  metadatas: ValidationMetadata[],
 ) {
   return metadatas.filter(
     (d) =>
@@ -218,8 +218,8 @@ function getInheritedMetadatas(
         (m) =>
           m.propertyName === d.propertyName &&
           m.target === target &&
-          m.type === d.type
-      )
+          m.type === d.type,
+      ),
   )
 }
 
@@ -228,14 +228,14 @@ function getInheritedMetadatas(
  */
 function applyConverters(
   propertyMetadatas: ValidationMetadata[],
-  options: IOptions
+  options: IOptions,
 ): SchemaObject {
   const converters = { ...defaultConverters, ...options.additionalConverters }
 
   const convert = (meta: ValidationMetadata) => {
     const typeMeta = options.classTransformerMetadataStorage?.findTypeMetadata(
       meta.target as Function,
-      meta.propertyName
+      meta.propertyName,
     )
     const isMap =
       typeMeta &&
@@ -265,11 +265,11 @@ function applyConverters(
 /** Check whether property is excluded with class-transformer `@Exclude` decorator. */
 function isExcluded(
   propertyMetadata: ValidationMetadata,
-  options: IOptions
+  options: IOptions,
 ): boolean {
   return !!options.classTransformerMetadataStorage?.findExcludeMetadata(
     propertyMetadata.target as Function,
-    propertyMetadata.propertyName
+    propertyMetadata.propertyName,
   )
 }
 
@@ -281,7 +281,7 @@ function applyDecorators(
   schema: SchemaObject,
   target: Function,
   options: IOptions,
-  propertyName: string
+  propertyName: string,
 ): ReferenceObject | SchemaObject {
   const additionalSchema = getMetadataSchema(target.prototype, propertyName)
   return typeof additionalSchema === 'function'
@@ -298,7 +298,7 @@ function applyDecorators(
 function getRequiredPropNames(
   target: Function,
   metadatas: ValidationMetadata[],
-  options: IOptions
+  options: IOptions,
 ) {
   function isDefined(metas: ValidationMetadata[]) {
     return (
@@ -309,7 +309,7 @@ function getRequiredPropNames(
     return (
       metas &&
       metas.some(({ type }) =>
-        [cv.ValidationTypes.CONDITIONAL_VALIDATION, cv.IS_EMPTY].includes(type)
+        [cv.ValidationTypes.CONDITIONAL_VALIDATION, cv.IS_EMPTY].includes(type),
       )
     )
   }

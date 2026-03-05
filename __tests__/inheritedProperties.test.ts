@@ -11,7 +11,6 @@ import {
   MetadataStorage,
   MinLength,
 } from 'class-validator'
-import _get from 'lodash.get'
 
 import {
   JSONSchema,
@@ -71,7 +70,7 @@ class User extends BaseContent {
 // @ts-ignore: not referenced
 class Admin extends User {}
 
-const metadatas = _get(getFromContainer(MetadataStorage), 'validationMetadatas')
+const metadatas = getFromContainer(MetadataStorage)?.['validationMetadatas']
 
 describe('Inheriting validation decorators', () => {
   it('inherits and merges validation decorators from parent class', () => {

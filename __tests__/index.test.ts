@@ -70,7 +70,7 @@ describe('classValidatorConverter', () => {
     expect(
       validationMetadatasToSchemas({
         classValidatorMetadataStorage: emptyStorage,
-      })
+      }),
     ).toEqual({})
   })
 
@@ -136,7 +136,6 @@ describe('classValidatorConverter', () => {
                     { type: 'object' },
                   ],
                 },
-                nullable: true,
               },
             ],
           },
@@ -201,7 +200,6 @@ describe('classValidatorConverter', () => {
                   { type: 'object' },
                 ],
               },
-              nullable: true,
             },
           ],
         },
@@ -265,7 +263,6 @@ describe('classValidatorConverter', () => {
                     { type: 'object' },
                   ],
                 },
-                nullable: true,
               },
             ],
           },
